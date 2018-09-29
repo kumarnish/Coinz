@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Nishtha_Coinz</string>
+        <string name="access_token" translatable="false">pk.eyJ1IjoibmlzaHRoYWt1bWFyIiwiYSI6ImNqbW5rbGtqZjA0aWIzdnBuM29uNGZ4ejkifQ.shgRE4_azBFtTuVxFt-bUA</string>
 </resources>

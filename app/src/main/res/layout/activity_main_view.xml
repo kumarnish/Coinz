@@ -8,8 +8,10 @@
 
     <Button
         android:id="@+id/play"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:onClick="playgame"
         android:text="Let's Find Some CoinZ"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -21,10 +23,12 @@
 
     <Button
         android:id="@+id/stockmarketbtn"
-        android:layout_width="176dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Stock Market"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:onClick="gotostockmarket"
+        android:text="Stock Market"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,10 +37,12 @@
 
     <Button
         android:id="@+id/bankbtn"
-        android:layout_width="176dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Bank"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:onClick="gotobank"
+        android:text="Bank"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,10 +51,12 @@
 
     <Button
         android:id="@+id/settingsbtn"
-        android:layout_width="176dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Settings"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:onClick="gotosettings"
+        android:text="Settings"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +71,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.102"
+        app:layout_constraintVertical_bias="0.051"
         app:srcCompat="@drawable/logo" />
 
 </android.support.constraint.ConstraintLayout>

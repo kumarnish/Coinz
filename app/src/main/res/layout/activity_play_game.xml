@@ -28,5 +28,4 @@ tools:context=".PlayGame">
 
 </RelativeLayout>
 
-
 </android.support.constraint.ConstraintLayout>

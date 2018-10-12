@@ -1,5 +1,7 @@
 package s1640402.coinzgame.nishtha_coinz;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -193,7 +195,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     }
 
 
-        @Override
+    @Override
     public void onStart() {
         super.onStart();
         mapView.onStart();

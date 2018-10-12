@@ -14,13 +14,28 @@ public class MainView extends AppCompatActivity {
         setContentView(R.layout.activity_main_view);
     }
 
+    //on click of "lets collect some coinz button" takes user to mapview
     public void playgame(View view){
         Intent intent = new Intent(this, PlayGame.class);
         startActivity(intent);
-
-
     }
 
+    //takes user to stock market
+    public void gotostockmarket(View view) {
+        Intent intent = new Intent (this, StockMarket.class);
+        startActivity(intent);
+    }
 
+    //takes user to bank
+    public void gotobank(View view){
+        Intent intent = new Intent(this, Bank.class);
+        startActivity(intent);
+    }
+
+    //takes user to settings
+    public void gotosettings(View view) {
+        Intent intent = new Intent(this, Settings.class);
+        startActivity(intent);
+    }
 
 }

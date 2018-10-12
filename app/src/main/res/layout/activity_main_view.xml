@@ -10,13 +10,61 @@
         android:id="@+id/play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Let's Find Some CoinZ"
         android:onClick="playgame"
+        android:text="Let's Find Some CoinZ"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498" />
+
+    <Button
+        android:id="@+id/stockmarketbtn"
+        android:layout_width="176dp"
+        android:layout_height="wrap_content"
+        android:text="Stock Market"
+        android:onClick="gotostockmarket"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/play"
+        app:layout_constraintVertical_bias="0.092" />
+
+    <Button
+        android:id="@+id/bankbtn"
+        android:layout_width="176dp"
+        android:layout_height="wrap_content"
+        android:text="Bank"
+        android:onClick="gotobank"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stockmarketbtn"
+        app:layout_constraintVertical_bias="0.131" />
+
+    <Button
+        android:id="@+id/settingsbtn"
+        android:layout_width="176dp"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:onClick="gotosettings"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bankbtn"
+        app:layout_constraintVertical_bias="0.24" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="202dp"
+        android:layout_height="199dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.203" />
+        app:layout_constraintVertical_bias="0.102"
+        app:srcCompat="@drawable/logo" />
 
 </android.support.constraint.ConstraintLayout>
 

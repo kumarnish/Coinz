@@ -1,10 +1,14 @@
+package s1640402.coinzgame.nishtha_coinz;
+
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class DownloadFileTask extends AsyncTask<String, Void, String> {
     @Override
@@ -33,9 +37,25 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
         return conn.getInputStream();
     }
 
+    //method returns geojson data as string
     @NonNull
     private String readStream(InputStream stream) throws IOException {
     // Read input from stream, build result as a string
+        if (stream != null) {
+            Writer writer = new StringWriter();
+
+            char[] buffer = new char[1024];
+            try {
+                Reader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+                int n;
+                while ((n = reader.read(buffer)) != -1) {
+                    writer.write(buffer, 0, n);
+                }
+            } finally {
+                stream.close();
+            }
+            return writer.toString();
+        }
         return "";
     }
     @Override

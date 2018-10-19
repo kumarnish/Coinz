@@ -1,12 +1,16 @@
 package s1640402.coinzgame.nishtha_coinz;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.gson.JsonParser;
+import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -31,7 +35,8 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.Point;
 import com.google.gson.JsonObject;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.mapboxsdk.style.light.Position;
+
 
 //Mapbox markers and icon imports
 import com.mapbox.mapboxsdk.annotations.Icon;
@@ -59,13 +64,35 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //get map data from mainview
+        Bundle bundle=getIntent().getExtras();
+        //String mapdatalink =bundle.getString("mapdata");
+        String mapdatalink = "helooo";
+
         Mapbox.getInstance(this, "pk.eyJ1IjoibmlzaHRoYWt1bWFyIiwiYSI6ImNqbW5rbXdlaDBzYmYza254eGE1aXJkN2wifQ.Y2hUSRk2rGB45RKqgycCXQ");
         setContentView(R.layout.activity_play_game);
         mapView = (MapView) findViewById(R.id.mapboxMapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-    }
 
+        //setup markers
+        if(mapdatalink.equals("")) {
+            Log.d(tag, "[onCreate Parsing] not parsed correctly");
+            Toast.makeText(this, "broken", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+           // JsonObject obj = new JsonParser().parse(mapdatalink).getAsJsonObject();
+            Toast.makeText(this, mapdatalink, Toast.LENGTH_LONG).show();
+
+        }
+
+
+
+
+
+    }
 
     private void enableLocation()
     {

@@ -1,3 +1,5 @@
+package s1640402.coinzgame.nishtha_coinz;
+
 public class DownloadCompleteRunner
 {
     static String result;

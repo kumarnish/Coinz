@@ -2,13 +2,11 @@ package s1640402.coinzgame.nishtha_coinz;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static android.widget.Toast.LENGTH_SHORT;
 
 public class DownloadFileTask extends AsyncTask<String, Void, String> {
     @Override
@@ -16,7 +14,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
         try {
             return loadFileFromNetwork(urls[0]);
         } catch (IOException e) {
-            return "Unable to load content. Check your network connection";
+            return e.getMessage();
         }
     }
 
@@ -33,6 +31,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
                 "GET"
         );
         conn.setDoInput(true);
+
         conn.connect();
         return conn.getInputStream();
     }
@@ -40,23 +39,19 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
     //method returns geojson data as string
     @NonNull
     private String readStream(InputStream stream) throws IOException {
-    // Read input from stream, build result as a string
-        if (stream != null) {
-            Writer writer = new StringWriter();
+        // Read input from stream, build result as a string
+        //I got this code from a website, link num in the references
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
 
-            char[] buffer = new char[1024];
-            try {
-                Reader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-                int n;
-                while ((n = reader.read(buffer)) != -1) {
-                    writer.write(buffer, 0, n);
-                }
-            } finally {
-                stream.close();
-            }
-            return writer.toString();
+        while ((line = reader.readLine()) != null) {
+           sb.append(line).append("\n");
         }
-        return "";
+
+        reader.close();
+        return sb.toString();
+
     }
     @Override
     protected void onPostExecute(String result) {

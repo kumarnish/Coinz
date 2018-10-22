@@ -3,7 +3,7 @@ package s1640402.coinzgame.nishtha_coinz;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Parcelable;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,10 +11,12 @@ import android.view.*;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ExecutionException;
 
 
 public class MainView extends AppCompatActivity {
@@ -22,7 +24,7 @@ public class MainView extends AppCompatActivity {
     private String downloadDate = ""; // Format: YYYY/MM/DD
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
     private String tag = "MainView";
-    private String mapdata;
+    private String strMapData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,6 @@ public class MainView extends AppCompatActivity {
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("lastDownloadDate", downloadDate);
 
@@ -45,18 +46,21 @@ public class MainView extends AppCompatActivity {
         downloadDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
 
-        //downloading map
-
-        //check for internet and download map
-       DownloadFileTask downloader = new DownloadFileTask();
 
         //data variable has geojson data in String form
-        //String link = "http://homepages.inf.ed.ac.uk/stg/coinz/" + downloadDate + "/coinzmap.geojson";
-        //mapdata = downloader.doInBackground(link);
+        String link = "http://www.homepages.inf.ed.ac.uk/stg/coinz/" + downloadDate + "/coinzmap.geojson";
+        AsyncTask<String, Void, String> mapdata = new DownloadFileTask().execute(link);
 
-        mapdata = "";
+        try {
+             strMapData = mapdata.get();
 
-        //data = new GeoJsonSource("geojson", mapdata);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public void onStop(){
@@ -77,11 +81,9 @@ public class MainView extends AppCompatActivity {
     //on click of "lets collect some coinz button" takes user to mapview
     public void playgame(View view){
         Intent intent = new Intent(this, PlayGame.class);
+        //send map data geo json to map view
+        intent.putExtra("strMapData", strMapData);
         startActivity(intent);
-
-        //send downloaded map data to mapview
-        intent.putExtra("mapdata", mapdata);
-        finish();
     }
 
     //takes user to stock market

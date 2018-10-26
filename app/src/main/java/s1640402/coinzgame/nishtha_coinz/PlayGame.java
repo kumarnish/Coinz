@@ -1,11 +1,8 @@
 package s1640402.coinzgame.nishtha_coinz;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -61,6 +58,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     private LocationLayerPlugin locationLayerPlugin;
     private Location originLocation;
     private String geojsonstring;
+    private List<Feature> features;
 
 
     @Override
@@ -114,18 +112,26 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
 
             //take downloaded geojson string and make into feature collection
             FeatureCollection featureCollection = FeatureCollection.fromJson(geojsonstring);
-            List<Feature> features = featureCollection.features();
+            features = featureCollection.features();
+            IconArraylist iconArraylist = new IconArraylist();
+            IconFactory iconFactory = IconFactory.getInstance(PlayGame.this);
 
             //setup markers using loop and relation information from slides
             for (Feature f : features) {
                 if (f.geometry() instanceof Point) {
+
+                    //get marker icon based on currency and symbol
+                    int marker = iconArraylist.geticonmarker(f.properties().get("currency").getAsString(),
+                                                         f.properties().get("marker-symbol").getAsString());
 
                     map.addMarker(
                             new MarkerOptions().setPosition(new LatLng(
                                     ((Point) f.geometry()).latitude(),
                                     ((Point) f.geometry()).longitude()))
                             .setTitle(f.properties().get("currency").getAsString())
-                            .setSnippet("value: " + f.properties().get("value").getAsString()));
+                            .setSnippet("value: " + f.properties().get("value").getAsString())
+                            .setIcon(iconFactory.fromResource(marker))
+                            .setSnippet("id" + f.properties().get("id").getAsString()));
                 }
             }
 
@@ -268,4 +274,6 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
+
+
 }

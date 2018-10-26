@@ -27,9 +27,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000); // milliseconds
         conn.setConnectTimeout(15000); // milliseconds
-        conn.setRequestMethod(
-                "GET"
-        );
+        conn.setRequestMethod("GET");
         conn.setDoInput(true);
 
         conn.connect();

@@ -1,5 +1,6 @@
 package s1640402.coinzgame.nishtha_coinz;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -182,7 +183,7 @@ public class StockMarket extends AppCompatActivity {
 
     //calculate percentage change of respective currency using day before and current day's rate
     public float percentagecalculator(float oldrate, float newrate){
-        return (float)100.00*((oldrate-newrate)/oldrate);
+        return (float)100.00*((newrate-oldrate)/newrate);
     }
 
     //select color based on percentage being negative or positive
@@ -295,6 +296,11 @@ public class StockMarket extends AppCompatActivity {
 
         TextView penytitle = (TextView)findViewById(R.id.penytitle);
         penytitle.setText("PENY - " + todaysrate[3]);
+    }
+
+    public void visitbank(View view){
+        Intent intent = new Intent(this, Bank.class);
+        startActivity(intent);
     }
 
 }

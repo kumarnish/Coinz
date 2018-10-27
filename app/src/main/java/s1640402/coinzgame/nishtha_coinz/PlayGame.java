@@ -1,5 +1,6 @@
 package s1640402.coinzgame.nishtha_coinz;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -43,7 +44,11 @@ import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener,
@@ -59,6 +64,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     private Location originLocation;
     private String geojsonstring;
     private List<Feature> features;
+    private ArrayList<String> removemarkers = new ArrayList<String>();
 
 
     @Override
@@ -75,6 +81,11 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         //send downloaded data to map view
         Bundle bundle = getIntent().getExtras();
         geojsonstring = bundle.getString("strMapData");
+
+       // if(removemarkers.size() == 0 || removemarkers !=null)
+       // {
+       //     getremovedmarkers();
+       // }
 
     }
 
@@ -129,10 +140,11 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
                                     ((Point) f.geometry()).latitude(),
                                     ((Point) f.geometry()).longitude()))
                             .setTitle(f.properties().get("currency").getAsString())
-                            .setSnippet("value: " + f.properties().get("value").getAsString())
-                            .setIcon(iconFactory.fromResource(marker))
-                            .setSnippet("id" + f.properties().get("id").getAsString()));
+                            .setSnippet("value: " + f.properties().get("value").getAsString() +
+                                        "\nid: " + f.properties().get("id").getAsString()))
+                            .setIcon(iconFactory.fromResource(marker));
                 }
+
             }
 
         }
@@ -200,6 +212,27 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
             Log.d(tag, "[onLocationChanged] location is not null");
             originLocation = location;
             setCameraPosition(location);
+
+            float distance = 0;
+
+            for (int i = 0; i<map.getMarkers().size(); i++) {
+
+                Point g = (Point) (features.get(i)).geometry();
+
+                Location point = new Location("");
+                point.setLatitude(map.getMarkers().get(i).getPosition().getLatitude());
+                point.setLongitude(map.getMarkers().get(i).getPosition().getLongitude());
+
+                distance = location.distanceTo(point);
+
+                if(distance <=25) {
+
+                    Marker marker = map.getMarkers().get(i);
+                   // removemarkers.add(features.get(i).getProperty("id").getAsString());
+                    map.removeMarker(marker);
+                }
+            }
+
         }
     }
 
@@ -274,6 +307,5 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
 
 }

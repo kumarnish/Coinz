@@ -183,7 +183,7 @@ public class StockMarket extends AppCompatActivity {
 
     //calculate percentage change of respective currency using day before and current day's rate
     public float percentagecalculator(float oldrate, float newrate){
-        return (float)100.00*((newrate-oldrate)/newrate);
+        return (float)100.00*((newrate-oldrate)/oldrate);
     }
 
     //select color based on percentage being negative or positive
@@ -292,7 +292,7 @@ public class StockMarket extends AppCompatActivity {
         dolrtitle.setText("DOLR - " + todaysrate[1]);
 
         TextView quidtitle = (TextView)findViewById(R.id.quidtitle);
-        quidtitle.setText("DOLR - " + todaysrate[2]);
+        quidtitle.setText("QUID - " + todaysrate[2]);
 
         TextView penytitle = (TextView)findViewById(R.id.penytitle);
         penytitle.setText("PENY - " + todaysrate[3]);

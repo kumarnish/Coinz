@@ -162,22 +162,22 @@ public class StockMarket extends AppCompatActivity {
         //peny button
         Button penybtn = (Button)findViewById(R.id.penypercent);
         penybtn.setText("" + percentagecalculator(penyrates[3], penyrates[4]) + "%");
-        penybtn.setBackgroundColor(colorselector(percentagecalculator(penyrates[3], penyrates[4])));
+        penybtn.setBackgroundColor(Color.parseColor(colorselector(percentagecalculator(penyrates[3], penyrates[4]))));
 
         //shil button
         Button shilbtn = (Button)findViewById(R.id.shilpercent);
         shilbtn.setText("" + percentagecalculator(shilrates[3], shilrates[4])+ "%");
-        shilbtn.setBackgroundColor(colorselector(percentagecalculator(shilrates[3], shilrates[4])));
+        shilbtn.setBackgroundColor(Color.parseColor(colorselector(percentagecalculator(shilrates[3], shilrates[4]))));
 
         //dolr button
         Button dolrbtn = (Button)findViewById(R.id.dolrpercent);
         dolrbtn.setText("" + percentagecalculator(dolrrates[3], dolrrates[4])+ "%");
-        dolrbtn.setBackgroundColor(colorselector(percentagecalculator(dolrrates[3], dolrrates[4])));
+        dolrbtn.setBackgroundColor(Color.parseColor(colorselector(percentagecalculator(dolrrates[3], dolrrates[4]))));
 
         //quid button
         Button quidbtn = (Button)findViewById(R.id.quidpercent);
         quidbtn.setText("" + percentagecalculator(quidrates[3], quidrates[4])+ "%");
-        quidbtn.setBackgroundColor(colorselector(percentagecalculator(quidrates[3], quidrates[4])));
+        quidbtn.setBackgroundColor(Color.parseColor(colorselector(percentagecalculator(quidrates[3], quidrates[4]))));
 
     }
 
@@ -187,11 +187,11 @@ public class StockMarket extends AppCompatActivity {
     }
 
     //select color based on percentage being negative or positive
-    public int colorselector(float percentage){
+    public String colorselector(float percentage){
         if(percentage < 0)
-            return Color.RED;
+            return "#EA0607";
         else
-            return Color.GREEN;
+            return "#01A101";
     }
 
     //when the peny percentage  button is clicked display the graph of it's rate for the past 4 days

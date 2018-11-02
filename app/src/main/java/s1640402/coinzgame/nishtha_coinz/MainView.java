@@ -11,6 +11,7 @@ import android.view.*;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
@@ -33,6 +34,7 @@ public class MainView extends AppCompatActivity {
     private String tag = "MainView";
     private String strMapData = "";
     private HashSet<String> fourdaysrates = new HashSet<String>();
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,5 +196,13 @@ public class MainView extends AppCompatActivity {
         fourdaysrates =  new HashSet<String>(Arrays.asList(arrrates));
 
     }
+
+    public void signout(View view){
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
+        Intent intent = new Intent(this, Loginview.class);
+        startActivity(intent);
+    }
+
 
 }

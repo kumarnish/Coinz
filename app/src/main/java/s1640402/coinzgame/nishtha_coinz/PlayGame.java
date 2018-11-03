@@ -1,14 +1,20 @@
 package s1640402.coinzgame.nishtha_coinz;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -30,25 +36,20 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 //Geo Json imports
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.Point;
-import com.google.gson.JsonObject;
-import com.mapbox.mapboxsdk.style.light.Position;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 
 //Mapbox markers and icon imports
-import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+//firebase
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import javax.annotation.Nullable;
 
 
 public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener,
@@ -64,12 +65,18 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     private Location originLocation;
     private String geojsonstring;
     private List<Feature> features;
-    private ArrayList<String> removemarkers = new ArrayList<String>();
+
+    //firebase variables
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseAuth mAuth;
+    private String curruser;
+    private Button walletbutton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         //get map data from mainview
         Mapbox.getInstance(this, "pk.eyJ1IjoibmlzaHRoYWt1bWFyIiwiYSI6ImNqbW5rbXdlaDBzYmYza254eGE1aXJkN2wifQ.Y2hUSRk2rGB45RKqgycCXQ");
@@ -82,10 +89,10 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         Bundle bundle = getIntent().getExtras();
         geojsonstring = bundle.getString("strMapData");
 
-       // if(removemarkers.size() == 0 || removemarkers !=null)
-       // {
-       //     getremovedmarkers();
-       // }
+        mAuth = FirebaseAuth.getInstance();
+        curruser = mAuth.getCurrentUser().getEmail();
+        walletbutton = findViewById(R.id.wallet);
+
 
     }
 
@@ -131,22 +138,28 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
             for (Feature f : features) {
                 if (f.geometry() instanceof Point) {
 
-                    //get marker icon based on currency and symbol
-                    int marker = iconArraylist.geticonmarker(f.properties().get("currency").getAsString(),
-                                                         f.properties().get("marker-symbol").getAsString());
+                    CollectionReference collectionReference = db.collection("users").document(curruser).collection("removedcoins");
 
-                    map.addMarker(
-                            new MarkerOptions().setPosition(new LatLng(
-                                    ((Point) f.geometry()).latitude(),
-                                    ((Point) f.geometry()).longitude()))
-                            .setTitle(f.properties().get("currency").getAsString())
-                            .setSnippet("value: " + f.properties().get("value").getAsString() +
-                                        "\nid: " + f.properties().get("id").getAsString()))
-                            .setIcon(iconFactory.fromResource(marker));
+                    collectionReference.document(f.properties().get("id").getAsString()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                            if (!documentSnapshot.exists()) {
+                                //get marker icon based on currency and symbol
+                                int marker = iconArraylist.geticonmarker(f.properties().get("currency").getAsString(),
+                                                                     f.properties().get("marker-symbol").getAsString());
+
+                                map.addMarker(new MarkerOptions().setPosition(new LatLng(((Point) f.geometry()).latitude(),
+                                                                                         ((Point) f.geometry()).longitude()))
+                                                                             .setTitle(f.properties().get("id").getAsString())
+                                                                             .setSnippet("" + f.properties().get("currency").getAsString() +
+                                                                                         "\n" + f.properties().get("value").getAsString()))
+                                                                              .setIcon(iconFactory.fromResource(marker));
+                            }
+                        }
+                    });
                 }
 
             }
-
         }
     }
 
@@ -228,8 +241,32 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
                 if(distance <=25) {
 
                     Marker marker = map.getMarkers().get(i);
-                   // removemarkers.add(features.get(i).getProperty("id").getAsString());
                     map.removeMarker(marker);
+
+                    String[] data = marker.getSnippet().split("\n");
+                    Coin collected = new Coin(marker.getTitle(), data[1], data[0]);
+
+                    //check if the coin goes into the wallet or spare change
+                    db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>(){
+
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+                            if( queryDocumentSnapshots.size() < 25) {
+                                db.collection("users").document(curruser).collection("wallet").document(collected.getId()).set(collected);
+                                db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                        Integer walletcount = queryDocumentSnapshots.size();
+                                        walletbutton.setText(walletcount.toString());
+                                    }
+                                });
+                            }else {
+                                db.collection("users").document(curruser).collection("sparechange").document(collected.getId()).set(collected);
+                            }
+                        }
+                    });
+                    db.collection("users").document(curruser).collection("removedcoins").document(collected.getId()).set(collected);
                 }
             }
 
@@ -261,6 +298,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         else
         {
            // Open a dialogue with the user
+            Toast.makeText(this, "To play the game you will have to enable location!", Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -269,6 +307,16 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     @Override
     public void onStart() {
         super.onStart();
+        walletbutton = findViewById(R.id.wallet);
+
+        db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                Integer walletcount = queryDocumentSnapshots.size();
+                walletbutton.setText(walletcount.toString());
+            }
+        });
+
         mapView.onStart();
     }
 
@@ -298,8 +346,11 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
 
     @Override
     protected void onDestroy() {
+        if(mapView != null) {
+            mapView.onDestroy();
+        }
         super.onDestroy();
-        mapView.onDestroy();
+        finish();
     }
 
     @Override
@@ -307,5 +358,11 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
+
+    public void gotomain(View view){
+        Intent intent = new Intent(this, MainView.class);
+        startActivity(intent);
+    }
+
 
 }

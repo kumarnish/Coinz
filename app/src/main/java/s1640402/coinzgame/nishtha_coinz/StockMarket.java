@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.DataPointInterface;
@@ -16,7 +18,14 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 
 public class StockMarket extends AppCompatActivity {
@@ -29,12 +38,7 @@ public class StockMarket extends AppCompatActivity {
     private float[] quidrates = new float[5];
     private float[] penyrates = new float[5];
     private float[] dolrrates = new float[5];
-
-    private int[] dates = {LocalDate.now().minusDays(4).getDayOfMonth(),
-                                 LocalDate.now().minusDays(3).getDayOfMonth(),
-                                 LocalDate.now().minusDays(2).getDayOfMonth(),
-                                 LocalDate.now().minusDays(1).getDayOfMonth(),
-                                 LocalDate.now().getDayOfMonth()};
+    private Date[] dates = new Date[5];
 
     private GraphView graph;
     @Override
@@ -59,6 +63,13 @@ public class StockMarket extends AppCompatActivity {
         setbuttonsup();
         settitlesup();
 
+        try {
+            setdatesarray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         //set up graph view and show peny as default
         graph = (GraphView) findViewById(R.id.graph);
         graph.setBackgroundColor(Color.BLACK);
@@ -73,20 +84,15 @@ public class StockMarket extends AppCompatActivity {
         series.setThickness(8);
         series.setColor(Color.GRAY);
 
-        //when points are clicked on the user can see that rate
-        series.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(StockMarket.this, "" + dataPoint.getY(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        dateformatter();
+        graph.getGridLabelRenderer().setHumanRounding(false);
         graph.addSeries(series);
         graph.getGridLabelRenderer().setGridColor(Color.WHITE);
         graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
         graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
         graph.setTitle("PENY");
         graph.setTitleColor(Color.WHITE);
+        graph.getViewport().setXAxisBoundsManual(true);
 
     }
 
@@ -208,6 +214,8 @@ public class StockMarket extends AppCompatActivity {
                 new DataPoint(dates[4], penyrates[4]),
         });
 
+        dateformatter();
+
         graph.addSeries(series);
         series.setThickness(8);
         series.setColor(Color.GRAY);
@@ -230,6 +238,7 @@ public class StockMarket extends AppCompatActivity {
                 new DataPoint(dates[4], shilrates[4]),
         });
 
+        dateformatter();
         graph.addSeries(series);
         series.setThickness(8);
         series.setColor(Color.GRAY);
@@ -252,20 +261,22 @@ public class StockMarket extends AppCompatActivity {
                 new DataPoint(dates[4], quidrates[4]),
         });
 
+        dateformatter();
         graph.addSeries(series);
         series.setThickness(8);
         series.setColor(Color.GRAY);
         graph.setTitle("QUID");
         graph.setTitleColor(Color.WHITE);
 
+
     }
 
     //when the dolr percentage  button is clicked display the graph of it's rate for the past 4 days
     //and today's rate
     public void changegraphtoDOLR(View view){
-
         graph.removeAllSeries();
 
+        DataPoint starting =  new DataPoint(dates[0], dolrrates[0]);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(dates[0], dolrrates[0]),
                 new DataPoint(dates[1], dolrrates[1]),
@@ -274,6 +285,7 @@ public class StockMarket extends AppCompatActivity {
                 new DataPoint(dates[4], dolrrates[4]),
         });
 
+        dateformatter();
         graph.addSeries(series);
         series.setThickness(8);
         series.setColor(Color.GRAY);
@@ -301,6 +313,40 @@ public class StockMarket extends AppCompatActivity {
     public void visitbank(View view){
         Intent intent = new Intent(this, Bank.class);
         startActivity(intent);
+    }
+
+    public void setdatesarray() throws Exception {
+        dates[0] = getNewDate(new Date(),-4);
+        dates[1] = getNewDate(new Date(),-3);
+        dates[2] = getNewDate(new Date(),-2);
+        dates[3] = getNewDate(new Date(),-1);
+        dates[4] = new Date();
+    }
+
+
+    public static Date getNewDate(Date inputDate, int days) throws Exception {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(inputDate);
+        calendar.add(Calendar.DAY_OF_MONTH, days);
+
+        return calendar.getTime();
+    }
+
+    public void dateformatter() {
+        // custom label formatter to show currency "EUR"
+        SimpleDateFormat format = new SimpleDateFormat("dd//MM");
+        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+            @Override
+            public String formatLabel(double value, boolean isValueX) {
+                if (isValueX) {
+                    // show normal x values
+                    return format.format(value);
+                }
+                    return null;
+
+            }
+        });
+
     }
 
 }

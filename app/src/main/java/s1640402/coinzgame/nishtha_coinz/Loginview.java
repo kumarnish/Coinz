@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,8 +22,6 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
 
     private static final String TAG = "EmailPassword";
 
-    private TextView mStatusTextView;
-    private TextView mDetailTextView;
     private EditText mEmailField;
     private EditText mPasswordField;
 
@@ -36,9 +33,6 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loginview);
 
-
-        mStatusTextView = findViewById(R.id.status);
-        mDetailTextView = findViewById(R.id.detail);
         mEmailField = findViewById(R.id.fieldEmail);
         mPasswordField = findViewById(R.id.fieldPassword);
 
@@ -67,7 +61,6 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
             return;
         }
 
-        // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -96,7 +89,6 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
             return;
         }
 
-        // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -112,11 +104,6 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
                             Toast.makeText(Loginview.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
-                        }
-
-
-                        if (!task.isSuccessful()) {
-                            mStatusTextView.setText("Authentication failed.");
                         }
 
                     }
@@ -152,8 +139,7 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
             Intent intent = new Intent(this, MainView.class);
             startActivity(intent);
         } else {
-            mStatusTextView.setText("Signed out");
-            mDetailTextView.setText(null);
+            Toast.makeText(this, "Something went wrong.", Toast.LENGTH_SHORT).show();
         }
     }
 

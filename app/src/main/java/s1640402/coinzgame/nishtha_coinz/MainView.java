@@ -134,7 +134,6 @@ public class MainView extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Toast.makeText(this, fourdaysrates.size() + "", Toast.LENGTH_SHORT).show();
         //send rates to stock market view
         intent.putExtra("exrates", rates);
         intent.putExtra("prevdaysrates",fourdaysrates.toArray(new String[fourdaysrates.size()]));

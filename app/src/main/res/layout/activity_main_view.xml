@@ -8,21 +8,22 @@
 
     <ImageView
         android:id="@+id/bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="429dp"
+        android:layout_height="690dp"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.462"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.729"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/background" />
 
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="273dp"
-        android:layout_height="240dp"
+        android:layout_width="284dp"
+        android:layout_height="271dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +73,7 @@
         android:layout_height="211dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="408dp"
+        android:layout_marginTop="456dp"
         android:background="#0000"
         android:onClick="gotostockmarket"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,31 +88,33 @@
         android:layout_height="219dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="408dp"
+        android:layout_marginTop="456dp"
         android:background="#0000"
-        android:onClick="gotostockmarket"
+        android:onClick="playgame"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.21"
+        app:layout_constraintHorizontal_bias="0.206"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/collect" />
 
-    <Button
+    <ImageButton
         android:id="@+id/signout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="110dp"
+        android:layout_height="55dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Sign out"
+        android:background="#0000"
         android:onClick="signout"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.973"
+        app:layout_constraintHorizontal_bias="0.971"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.053" />
+        app:layout_constraintVertical_bias="0.039"
+        app:srcCompat="@drawable/signoutbutton" />
 
 
 </android.support.constraint.ConstraintLayout>

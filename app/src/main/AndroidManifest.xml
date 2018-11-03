@@ -29,7 +29,9 @@
         <activity android:name=".StockMarket" />
         <activity android:name=".Bank" />
         <activity android:name=".Settings" />
-        <activity android:name=".MainView"></activity>
+        <activity android:name=".MainView" />
+        <activity android:name=".ViewSpareChange" />
+        <activity android:name=".ViewWallet"></activity>
     </application>
 
 </manifest>

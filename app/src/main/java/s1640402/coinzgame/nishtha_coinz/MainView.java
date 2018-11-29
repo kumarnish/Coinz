@@ -9,14 +9,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.content.Intent;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -35,24 +40,37 @@ public class MainView extends AppCompatActivity {
     private String strMapData = "";
     private HashSet<String> fourdaysrates = new HashSet<String>();
     private FirebaseAuth mAuth;
-
+    private String rates = "";
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String curruser;
+    private TextView usernamedisp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
-
     }
 
     public void onStart() {
         super.onStart();
+        mAuth = FirebaseAuth.getInstance();
+        curruser = mAuth.getCurrentUser().getEmail();
+
+        //set up username box on login
+        usernamedisp = (TextView) findViewById(R.id.usernamedisp);
+        usernamedisp.setText("Hi " + curruser);
+
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("lastDownloadDate", downloadDate);
 
+        //download date retrival
+        editor.putString("lastDownloadDate", downloadDate);
         // use ”” as the default value (this might be the first time the app is run)
         downloadDate = settings.getString("lastDownloadDate", "");
         String todaydate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+
+        //get today's exchange rates
+        settings.getString("todayrate", rates);
 
         //checks if date has changed if it has the new map is downloaded to the prefs
         if (!todaydate.equals(downloadDate)) {
@@ -69,16 +87,34 @@ public class MainView extends AppCompatActivity {
                 strMapData = mapdata.get();
                 editor.putString("mapdata", strMapData);
 
+                //get today's rate
+                try {
+                    JSONObject rategetter = new JSONObject(strMapData);
+                    rates = rategetter.getString("rates");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
 
-            Toast.makeText(this, "map data is being downloaded", Toast.LENGTH_SHORT).show();
+            //delete removed list if date changed
+            db.collection("users").document(curruser).collection("removedcoins").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    for (int i =0; i<queryDocumentSnapshots.size();i++) {
+                        String key = queryDocumentSnapshots.getDocuments().get(i).get("id").toString();
+                        db.collection("users").document(curruser).collection("removedcoins").document(key).delete();
+                    }
+                }
+            });
         }
         else {
             strMapData = settings.getString("mapdata", strMapData);
+            rates = settings.getString("todayrate",rates);
 
             //checks if fourdaysrates set is empty so that it can add maps
             if (fourdaysrates.size() == 0) {
@@ -88,29 +124,28 @@ public class MainView extends AppCompatActivity {
             else {
                 settings.getStringSet("prevdatesrates", fourdaysrates);
             }
-
-            Toast.makeText(this, "map data is saved", Toast.LENGTH_SHORT).show();
         }
-
-        //Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
-
     }
 
+
+
+    //--------------------------- IT WORKS LEAVE IT
     public void onStop(){
         super.onStop();
 
         Log.d(tag,"[onStop] Storing lastDownloadDate of " + downloadDate);
         // All objects are from android.context.Context
 
+
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         // We need an Editor object to make preference changes.
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("lastDownloadDate", downloadDate);
         editor.putString("mapdata", strMapData);
+        editor.putString("todayrate", rates);
         // Apply the edits!
         editor.apply();
     }
-
 
     //on click of "lets collect some coinz button" takes user to mapview
     public void playgame(View view){
@@ -122,19 +157,9 @@ public class MainView extends AppCompatActivity {
 
     //takes user to stock market
     public void gotostockmarket(View view) {
-        String rates ="";
         Intent intent = new Intent (this, StockMarket.class);
-
-        //parse rates into array
-        JSONObject jsonResponse = null;
-        try {
-            jsonResponse = new JSONObject(strMapData);
-            rates = jsonResponse.getString("rates");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         //send rates to stock market view
+        Toast.makeText(this, rates, Toast.LENGTH_SHORT).show();
         intent.putExtra("exrates", rates);
         intent.putExtra("prevdaysrates",fourdaysrates.toArray(new String[fourdaysrates.size()]));
         startActivity(intent);
@@ -201,6 +226,10 @@ public class MainView extends AppCompatActivity {
         mAuth.signOut();
         Intent intent = new Intent(this, Loginview.class);
         startActivity(intent);
+    }
+
+    public void datechanged() {
+
     }
 
 

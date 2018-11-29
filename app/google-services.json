@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "650701226897",
+    "firebase_url": "https://coinz-78f57.firebaseio.com",
+    "project_id": "coinz-78f57",
+    "storage_bucket": "coinz-78f57.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:650701226897:android:70ec22d5873e7922",
+        "android_client_info": {
+          "package_name": "s1640402.coinzgame.nishtha_coinz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "650701226897-9n9nvui258rvrd1jp3sg9erdkfube75e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "s1640402.coinzgame.nishtha_coinz",
+            "certificate_hash": "f6f60aed1fc0bfa4d8b1077190d84b9faaac64cb"
+          }
+        },
+        {
+          "client_id": "650701226897-ms7ajs802e85g1ao35g5151pnund35uq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUvHtX0U2ljdcHJMsHR1AzDaEqCCamOX0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "650701226897-ms7ajs802e85g1ao35g5151pnund35uq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

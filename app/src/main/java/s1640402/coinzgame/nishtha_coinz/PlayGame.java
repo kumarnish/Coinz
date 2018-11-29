@@ -9,11 +9,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -71,7 +73,6 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     private FirebaseAuth mAuth;
     private String curruser;
     private Button walletbutton;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,9 +141,9 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
 
                     CollectionReference collectionReference = db.collection("users").document(curruser).collection("removedcoins");
 
-                    collectionReference.document(f.properties().get("id").getAsString()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    collectionReference.document(f.properties().get("id").getAsString()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                        public void onSuccess(@Nullable DocumentSnapshot documentSnapshot) {
                             if (!documentSnapshot.exists()) {
                                 //get marker icon based on currency and symbol
                                 int marker = iconArraylist.geticonmarker(f.properties().get("currency").getAsString(),
@@ -157,6 +158,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
                             }
                         }
                     });
+
                 }
 
             }
@@ -247,12 +249,11 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
                     Coin collected = new Coin(marker.getTitle(), data[1], data[0]);
 
                     //check if the coin goes into the wallet or spare change
-                    db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>(){
-
+                    db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
-                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
 
-                            if( queryDocumentSnapshots.size() < 25) {
+                            if( queryDocumentSnapshots.size() < 50) {
                                 db.collection("users").document(curruser).collection("wallet").document(collected.getId()).set(collected);
                                 db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>() {
                                     @Override
@@ -309,9 +310,9 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         super.onStart();
         walletbutton = findViewById(R.id.wallet);
 
-        db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+            public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
                 Integer walletcount = queryDocumentSnapshots.size();
                 walletbutton.setText(walletcount.toString());
             }
@@ -335,6 +336,12 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     @Override
     public void onStop() {
         super.onStop();
+        if(locationEngine != null) {
+            locationEngine.removeLocationUpdates();
+        }
+        if(locationLayerPlugin !=null) {
+            locationLayerPlugin.onStop();
+        }
         mapView.onStop();
     }
 

@@ -16,12 +16,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+
+import javax.annotation.Nullable;
 
 
 public class Loginview extends AppCompatActivity implements OnClickListener {
 
     private static final String TAG = "EmailPassword";
-
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private EditText mEmailField;
     private EditText mPasswordField;
 
@@ -69,6 +81,15 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+
+                            HashMap <String,String> fieldsHashMap = new HashMap<String,String>();
+
+                            fieldsHashMap.put("Gold","" + 0.0);
+                            fieldsHashMap.put("Today Banked","" + 0);
+                            fieldsHashMap.put("Date", LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+
+                            db.collection("users").document(user.getEmail()).set(fieldsHashMap);
+
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -138,8 +159,6 @@ public class Loginview extends AppCompatActivity implements OnClickListener {
         if (user != null) {
             Intent intent = new Intent(this, MainView.class);
             startActivity(intent);
-        } else {
-            Toast.makeText(this, "Something went wrong.", Toast.LENGTH_SHORT).show();
         }
     }
 

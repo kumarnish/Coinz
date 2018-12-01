@@ -7,6 +7,24 @@
     android:background="#000000"
     tools:context=".StockMarket">
 
+    <ImageButton
+        android:id="@+id/backtomain"
+        android:layout_width="89dp"
+        android:layout_height="42dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#0000"
+        android:onClick="backtomain"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.986"
+        app:srcCompat="@drawable/backtomainmenu" />
+
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph"
         android:layout_width="0dp"
@@ -15,22 +33,11 @@
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.062" />
+        app:layout_constraintVertical_bias="0.122" />
 
-    <Button
-        android:id="@+id/bank"
-        android:layout_width="0dp"
-        android:layout_height="58dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Visit the bank"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        android:onClick="visitbank"/>
 
     <LinearLayout
         android:id="@+id/peny"
@@ -38,6 +45,7 @@
         android:layout_height="51dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="68dp"
         app:layout_constraintBottom_toTopOf="@+id/bank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -71,6 +79,7 @@
         android:layout_height="51dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="144dp"
         app:layout_constraintBottom_toTopOf="@+id/bank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -104,6 +113,7 @@
         android:layout_height="51dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="208dp"
         app:layout_constraintBottom_toTopOf="@+id/bank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -136,6 +146,7 @@
         android:layout_height="51dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="284dp"
         app:layout_constraintBottom_toTopOf="@+id/bank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -174,9 +185,9 @@
         android:textSize="15sp"
         app:layout_constraintBottom_toTopOf="@+id/peny"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph"
-        app:layout_constraintVertical_bias="0.384" />
+        app:layout_constraintVertical_bias="0.47" />
 
 </android.support.constraint.ConstraintLayout>

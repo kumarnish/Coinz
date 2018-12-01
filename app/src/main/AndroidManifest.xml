@@ -28,10 +28,15 @@
         <activity android:name=".PlayGame" />
         <activity android:name=".StockMarket" />
         <activity android:name=".Bank" />
-        <activity android:name=".Settings" />
+        <activity android:name=".AddFriends"
+                  android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".MainView" />
         <activity android:name=".ViewSpareChange" />
-        <activity android:name=".ViewWallet"></activity>
+        <activity android:name=".ViewWallet" />
+        <activity android:name=".ViewFriends"
+                  android:windowSoftInputMode="adjustNothing"/>
+        <activity android:name=".SendingCoins"
+                  android:windowSoftInputMode="adjustNothing"></activity>
     </application>
 
 </manifest>

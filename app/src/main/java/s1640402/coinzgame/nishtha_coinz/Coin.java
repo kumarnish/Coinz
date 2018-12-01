@@ -1,5 +1,6 @@
 package s1640402.coinzgame.nishtha_coinz;
 
+//class for the storing of coins on the database
 public class Coin {
 
     private String id;

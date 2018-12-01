@@ -38,7 +38,6 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
     @NonNull
     private String readStream(InputStream stream) throws IOException {
         // Read input from stream, build result as a string
-        //I got this code from a website, link num in the references
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         StringBuilder sb = new StringBuilder();
         String line = null;

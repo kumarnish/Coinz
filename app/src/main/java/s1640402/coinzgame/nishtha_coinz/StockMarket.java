@@ -4,25 +4,16 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
-import com.jjoe64.graphview.series.OnDataPointTapListener;
-import com.jjoe64.graphview.series.Series;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -30,14 +21,16 @@ import java.util.GregorianCalendar;
 
 public class StockMarket extends AppCompatActivity {
 
-    private String todaysratestring;
-    private float[] todaysrate;
-    private String[] prevdayrates;
+    private float[] todaysrate; //stores current day's exchange rate
+    private String[] prevdayrates; //stores exchange rates of previous 4 days
 
+    //stores respective currency's 5 day rates
     private float[] shilrates = new float[5];
     private float[] quidrates = new float[5];
     private float[] penyrates = new float[5];
     private float[] dolrrates = new float[5];
+
+    //stores past 5 days date
     private Date[] dates = new Date[5];
 
     private GraphView graph;
@@ -53,11 +46,11 @@ public class StockMarket extends AppCompatActivity {
 
         //get rates from the maps that were downloaded in the main menu
         Bundle bundle = getIntent().getExtras();
-        todaysratestring = bundle.getString("exrates");
+        String todaysratestring = bundle.getString("exrates");
         prevdayrates = bundle.getStringArray("prevdaysrates");
 
         //get the numbers of the rates out of the json file
-        todaysrate = getrates(todaysratestring);
+        todaysrate = (new ConverterandDialogs()).getrates(todaysratestring);
 
         setupratearrays();
         setbuttonsup();
@@ -84,7 +77,9 @@ public class StockMarket extends AppCompatActivity {
         series.setThickness(8);
         series.setColor(Color.GRAY);
 
+        //format date for graph labels
         dateformatter();
+        //configure graph's layout
         graph.getGridLabelRenderer().setHumanRounding(false);
         graph.addSeries(series);
         graph.getGridLabelRenderer().setGridColor(Color.WHITE);
@@ -96,59 +91,12 @@ public class StockMarket extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
-    //gets rates out of string
-    public float[] getrates(String r){
-        //create an array that separates each currency into an element of a string array
-        String[] strrates = (r.substring(0,r.length()-2)).split(",");
-        float[] rates = new float[4];
-        String numstring;
-
-        //the array has the rates in the order they are present in the geojson file
-        // Shil, Dolr, Quid, Peny hence rates[0] is the rate of shil and etc..
-        for (int i =0; i<strrates.length; i++) {
-            numstring = strrates[i].substring(strrates[i].indexOf(":")+1);
-            rates[i] = Float.parseFloat(numstring);
-        }
-
-        return rates;
-    }
-
-    //put each rate with respect to its currency in the approriate array
+    //create arrays for each currency to plot
     public void setupratearrays(){
         float[] dayrates;
-
         for (int i =0; i<prevdayrates.length; i++) {
-            dayrates = getrates(prevdayrates[i]);
+            //get rates for specific day and then put them in their currencies arrays
+            dayrates = (new ConverterandDialogs()).getrates(prevdayrates[i]);
             shilrates[i] = dayrates[0];
             dolrrates[i] = dayrates[1];
             quidrates[i] = dayrates[2];
@@ -200,100 +148,6 @@ public class StockMarket extends AppCompatActivity {
             return "#01A101";
     }
 
-    //when the peny percentage  button is clicked display the graph of it's rate for the past 4 days
-    //and today's rate
-    public void changegraphtoPENY(View view){
-
-        graph.removeAllSeries();
-
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(dates[0], penyrates[0]),
-                new DataPoint(dates[1], penyrates[1]),
-                new DataPoint(dates[2], penyrates[2]),
-                new DataPoint(dates[3], penyrates[3]),
-                new DataPoint(dates[4], penyrates[4]),
-        });
-
-        dateformatter();
-
-        graph.addSeries(series);
-        series.setThickness(8);
-        series.setColor(Color.GRAY);
-        graph.setTitle("PENY");
-        graph.setTitleColor(Color.WHITE);
-
-    }
-
-    //when the shil percentage  button is clicked display the graph of it's rate for the past 4 days
-    //and today's rate
-    public void changegraphtoSHIL(View view){
-
-        graph.removeAllSeries();
-
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(dates[0], shilrates[0]),
-                new DataPoint(dates[1], shilrates[1]),
-                new DataPoint(dates[2], shilrates[2]),
-                new DataPoint(dates[3], shilrates[3]),
-                new DataPoint(dates[4], shilrates[4]),
-        });
-
-        dateformatter();
-        graph.addSeries(series);
-        series.setThickness(8);
-        series.setColor(Color.GRAY);
-        graph.setTitle("SHIL");
-        graph.setTitleColor(Color.WHITE);
-
-    }
-
-    //when the quid percentage  button is clicked display the graph of it's rate for the past 4 days
-    //and today's rate
-    public void changegraphtoQUID(View view){
-
-        graph.removeAllSeries();
-
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(dates[0], quidrates[0]),
-                new DataPoint(dates[1], quidrates[1]),
-                new DataPoint(dates[2], quidrates[2]),
-                new DataPoint(dates[3], quidrates[3]),
-                new DataPoint(dates[4], quidrates[4]),
-        });
-
-        dateformatter();
-        graph.addSeries(series);
-        series.setThickness(8);
-        series.setColor(Color.GRAY);
-        graph.setTitle("QUID");
-        graph.setTitleColor(Color.WHITE);
-
-
-    }
-
-    //when the dolr percentage  button is clicked display the graph of it's rate for the past 4 days
-    //and today's rate
-    public void changegraphtoDOLR(View view){
-        graph.removeAllSeries();
-
-        DataPoint starting =  new DataPoint(dates[0], dolrrates[0]);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(dates[0], dolrrates[0]),
-                new DataPoint(dates[1], dolrrates[1]),
-                new DataPoint(dates[2], dolrrates[2]),
-                new DataPoint(dates[3], dolrrates[3]),
-                new DataPoint(dates[4], dolrrates[4]),
-        });
-
-        dateformatter();
-        graph.addSeries(series);
-        series.setThickness(8);
-        series.setColor(Color.GRAY);
-        graph.setTitle("DOLR");
-        graph.setTitleColor(Color.WHITE);
-
-    }
-
     // add titles near button with today's rate next to them
     public void settitlesup(){
 
@@ -310,11 +164,49 @@ public class StockMarket extends AppCompatActivity {
         penytitle.setText("PENY - " + todaysrate[3]);
     }
 
-    public void visitbank(View view){
-        Intent intent = new Intent(this, Bank.class);
-        startActivity(intent);
+    //when either button is pressed the respective currencies graph will show
+    public void changegraphtoPENY(View view){
+        graphchanger(penyrates,"PENY");
     }
 
+    public void changegraphtoSHIL(View view){
+
+        graphchanger(shilrates,"SHIL");
+
+    }
+
+    public void changegraphtoQUID(View view){
+        graphchanger(quidrates,"QUID");
+
+    }
+
+    public void changegraphtoDOLR(View view){
+        graphchanger(dolrrates,"DOLR");
+    }
+
+    //changes graph view to which ever currency button calls it
+    public void graphchanger(float[] rates, String curr) {
+        graph.removeAllSeries();
+
+        DataPoint starting =  new DataPoint(dates[0], dolrrates[0]);
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(dates[0], rates[0]),
+                new DataPoint(dates[1], rates[1]),
+                new DataPoint(dates[2], rates[2]),
+                new DataPoint(dates[3], rates[3]),
+                new DataPoint(dates[4], rates[4]),
+        });
+
+        dateformatter();
+        graph.addSeries(series);
+        series.setThickness(8);
+        series.setColor(Color.GRAY);
+        graph.setTitle(curr);
+        graph.setTitleColor(Color.WHITE);
+    }
+
+
+    //set up array that contains will the dates of the past 4 days and todays date
     public void setdatesarray() throws Exception {
         dates[0] = getNewDate(new Date(),-4);
         dates[1] = getNewDate(new Date(),-3);
@@ -323,7 +215,7 @@ public class StockMarket extends AppCompatActivity {
         dates[4] = new Date();
     }
 
-
+    //gets you the days before a specfic day
     public static Date getNewDate(Date inputDate, int days) throws Exception {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(inputDate);
@@ -332,6 +224,7 @@ public class StockMarket extends AppCompatActivity {
         return calendar.getTime();
     }
 
+    //formats the date from the timestamp form to an shorter form for the graph labels
     public void dateformatter() {
         // custom label formatter to show currency "EUR"
         SimpleDateFormat format = new SimpleDateFormat("dd//MM");
@@ -349,4 +242,39 @@ public class StockMarket extends AppCompatActivity {
 
     }
 
+    //goes back to main menu
+    public void backtomain(View view) {
+        Intent intent = new Intent(this, MainView.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 }

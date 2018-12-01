@@ -1,7 +1,9 @@
 package s1640402.coinzgame.nishtha_coinz;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,17 +58,17 @@ import javax.annotation.Nullable;
 
 public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener,
         PermissionsListener {
-
-    private MapView mapView;
     private String tag = "PlayGame";
-    private MapboxMap map;
 
+    //location and map variables
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
     private LocationLayerPlugin locationLayerPlugin;
     private Location originLocation;
     private String geojsonstring;
     private List<Feature> features;
+    private MapView mapView;
+    private MapboxMap map;
 
     //firebase variables
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -78,8 +80,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        //get map data from mainview
+        //get map data from main menu
         Mapbox.getInstance(this, "pk.eyJ1IjoibmlzaHRoYWt1bWFyIiwiYSI6ImNqbW5rbXdlaDBzYmYza254eGE1aXJkN2wifQ.Y2hUSRk2rGB45RKqgycCXQ");
         setContentView(R.layout.activity_play_game);
         mapView = (MapView) findViewById(R.id.mapboxMapView);
@@ -90,6 +91,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         Bundle bundle = getIntent().getExtras();
         geojsonstring = bundle.getString("strMapData");
 
+        //intitalise firebase/firestore variables
         mAuth = FirebaseAuth.getInstance();
         curruser = mAuth.getCurrentUser().getEmail();
         walletbutton = findViewById(R.id.wallet);
@@ -97,6 +99,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
 
     }
 
+    //if location tracking permission is granted intialize all the relevant engines and layers
     private void enableLocation()
     {
         if (PermissionsManager.areLocationPermissionsGranted(this))
@@ -139,6 +142,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
             for (Feature f : features) {
                 if (f.geometry() instanceof Point) {
 
+                    //check if current marker hasnt already been collected by the user by comparing to the removedcoins list on the database
                     CollectionReference collectionReference = db.collection("users").document(curruser).collection("removedcoins");
 
                     collectionReference.document(f.properties().get("id").getAsString()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -165,7 +169,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         }
     }
 
-
+    //center camera around the users location
     private void setCameraPosition(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(),
                 location.getLongitude());
@@ -215,6 +219,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         }
     }
 
+    // when location is changed we will check if there are any coins near by that can be banked
     @Override
     public void onLocationChanged(Location location)
     {
@@ -230,21 +235,27 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
 
             float distance = 0;
 
+            //when the users location changed we loop through all the markers on the map to see
+            //if they are near any of the coins
             for (int i = 0; i<map.getMarkers().size(); i++) {
 
                 Point g = (Point) (features.get(i)).geometry();
 
+                //get coordinates of this specific iterations coin
                 Location point = new Location("");
                 point.setLatitude(map.getMarkers().get(i).getPosition().getLatitude());
                 point.setLongitude(map.getMarkers().get(i).getPosition().getLongitude());
 
+                //calculate the distance in meters from the coin and the current location
                 distance = location.distanceTo(point);
-
+                //if the distance is 25 meters it means the user can pick up the coin
                 if(distance <=25) {
 
+                    //remove coin from markers list so it is not visble on the map anymore
                     Marker marker = map.getMarkers().get(i);
                     map.removeMarker(marker);
 
+                    //use the snippets of that coin along with it's id to create a new coin object for storing in wallet
                     String[] data = marker.getSnippet().split("\n");
                     Coin collected = new Coin(marker.getTitle(), data[1], data[0]);
 
@@ -253,20 +264,26 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
                         @Override
                         public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
 
+                            //if the wallet has space
                             if( queryDocumentSnapshots.size() < 50) {
+                                //put coin in wallet
                                 db.collection("users").document(curruser).collection("wallet").document(collected.getId()).set(collected);
-                                db.collection("users").document(curruser).collection("wallet").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                //update the wallet size display to show the new wallet size
+                                db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                     @Override
-                                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                                        Integer walletcount = queryDocumentSnapshots.size();
+                                    public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshot) {
+                                        Integer walletcount = queryDocumentSnapshot.size();
                                         walletbutton.setText(walletcount.toString());
                                     }
                                 });
-                            }else {
+                            }
+                            //if wallet is full so has 50 coins, this coin goes into spare change
+                            else {
                                 db.collection("users").document(curruser).collection("sparechange").document(collected.getId()).set(collected);
                             }
                         }
                     });
+                    //add the coin to the removed coin list so that next time this coin isnt re added to the map
                     db.collection("users").document(curruser).collection("removedcoins").document(collected.getId()).set(collected);
                 }
             }
@@ -285,7 +302,9 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     public void onExplanationNeeded(List<String> permissionsToExplain)
     {
         Log.d(tag, "Permissions: " + permissionsToExplain.toString());
-        // Present toast or dialog.
+
+        new ConverterandDialogs().OKdialog("To play the game you will have to enable location! " +
+                " Please go to your settings to enable location services","Location Services",PlayGame.this);
     }
 
     @Override
@@ -299,17 +318,23 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
         else
         {
            // Open a dialogue with the user
-            Toast.makeText(this, "To play the game you will have to enable location!", Toast.LENGTH_SHORT).show();
-
+            new ConverterandDialogs().OKdialog("To play the game you will have to enable location! " +
+                    " Please go to your settings to enable location services","Location Services",PlayGame.this);
         }
     }
 
+    //goes to wallet
+    public void gotowallet(View view) {
+        Intent intent = new Intent(this, ViewWallet.class);
+        startActivity(intent);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
         walletbutton = findViewById(R.id.wallet);
 
+        //load the wallet size for the wallet size button
         db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
@@ -336,6 +361,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
     @Override
     public void onStop() {
         super.onStop();
+        //stop tracking location when user leaves this activity
         if(locationEngine != null) {
             locationEngine.removeLocationUpdates();
         }

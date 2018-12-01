@@ -62,9 +62,6 @@ public class IconArraylist {
 
     }
 
-    public ArrayList<Integer> geticons(){
-        return icons;
-    }
 
     public int geticonmarker(String curr, String sym) {
 

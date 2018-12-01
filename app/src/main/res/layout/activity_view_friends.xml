@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ViewFriends">
+
+    <ImageButton
+        android:id="@+id/gotomain"
+        android:layout_width="72dp"
+        android:layout_height="37dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/yourfriendtitle"
+        android:layout_marginStart="22dp"
+        android:background="#0000"
+        android:onClick="gobacktomain"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.056"
+        app:srcCompat="@drawable/backtomainmenu" />
+
+
+    <ListView
+        android:id="@+id/listviewfriends"
+        android:layout_width="match_parent"
+        android:layout_height="457dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="83dp"
+        android:scrollbars="vertical" />
+
+    <Button
+        android:id="@+id/removefriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="41dp"
+        android:layout_marginStart="36dp"
+        android:onClick="removefriendsvalidate"
+        android:text=" Remove Friends" />
+
+    <TextView
+        android:id="@+id/yourfriendtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="22dp"
+        android:text="Your Friends"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/addmorefriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/removefriends"
+        android:layout_marginEnd="37dp"
+        android:text="Add more Friends"
+        android:onClick="addmorefriends"/>
+
+</RelativeLayout>

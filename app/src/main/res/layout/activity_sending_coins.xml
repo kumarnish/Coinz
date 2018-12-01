@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SendingCoins">
+
+    <ListView
+        android:id="@+id/listviewfriends"
+        android:layout_width="match_parent"
+        android:layout_height="197dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="47dp"
+        android:scrollbars="vertical" />
+
+    <ListView
+        android:id="@+id/listviewcoins"
+        android:layout_width="match_parent"
+        android:layout_height="197dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="82dp"
+        android:scrollbars="vertical" />
+
+    <EditText
+        android:id="@+id/emailsearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="252dp"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="textWebEmailAddress" />
+
+    <Button
+        android:id="@+id/searchforfriend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/emailsearch"
+        android:layout_toEndOf="@+id/emailsearch"
+        android:onClick="searchfriends"
+        android:text="Search" />
+
+    <TextView
+        android:id="@+id/coinstitle"
+        android:layout_width="336dp"
+        android:layout_height="37dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="296dp"
+        android:text="Select the coins you would like to send"
+        android:textAlignment="center"
+        android:textSize="19sp" />
+
+    <Button
+        android:id="@+id/Confirmsend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="17dp"
+        android:layout_marginEnd="62dp"
+        android:onClick="sendcoins"
+        android:text="Send Away!" />
+
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/emailsearch"
+        android:onClick="reset"
+        android:text="reset" />
+
+    <Button
+        android:id="@+id/backtobank"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/Confirmsend"
+        android:layout_marginStart="19dp"
+        android:text="Back to Bank"
+        android:onClick="backtobank"/>
+
+
+</RelativeLayout>

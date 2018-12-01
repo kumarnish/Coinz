@@ -10,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,56 +28,60 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public class ViewWallet extends AppCompatActivity {
-
-    private ListView listView;
+    //Firebase variables
     private FirebaseAuth mAuth;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String curruser;
+
+    //variables for displaying coins
+    private ListView listView;
     private ArrayList<String> coinz = new ArrayList<String>();
     private ArrayList<String> selectedcoinz = new ArrayList<String>();
-    private HashMap<String,String> coinsandid = new HashMap<String,String>();
-    private double calcgold = 0.0;
-    private int calctodaybanked =0;
-    private String currentrates;
     private ArrayAdapter arrayAdapter;
 
+    //coins as displayed in the list and their unique ids
+    private HashMap<String, String> coinsandid = new HashMap<String, String>();
+
+    //variables for storing the updated gold and number banked before updating on the database
+    private double calcgold = 0.0;
+    private int calctodaybanked = 0;
+
+    //current days string so we can get the gold
+    private String currentrates;
+
+    //wallet size
+    private int walletsize =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_wallet);
 
+        //get today's rate from Prefs File
+        SharedPreferences settings = getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
+        currentrates = settings.getString("todayrate", currentrates);
+
+        //setup list view
         listView = (ListView) findViewById(R.id.listviewwallet);
+
+        //intialize firebase variables and get current user
         mAuth = FirebaseAuth.getInstance();
         curruser = mAuth.getCurrentUser().getEmail();
+
+        //check date to update coins banked
         datechecker();
 
-        db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
-                for(int i = 0; i<queryDocumentSnapshots.size();i++) {
-                    String value = queryDocumentSnapshots.getDocuments().get(i).get("value").toString();
-                    String curr = queryDocumentSnapshots.getDocuments().get(i).get("currency").toString();
-                    String id = queryDocumentSnapshots.getDocuments().get(i).get("id").toString();
-                    coinz.add(value + " " + curr);
-                    coinsandid.put(id,value + " " + curr);
-                }
-                arrayAdapter = new ArrayAdapter(ViewWallet.this, R.layout.viewcoinzrow,R.id.template, coinz);
-                listView.setAdapter(arrayAdapter);
-                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-            }
-        });
-
+        //add the ticked coins to a list so we know which coins to manipulate
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String selecteditem = ((TextView) view).getText().toString();
 
-                if(selectedcoinz.contains(selecteditem)) {
+                if (selectedcoinz.contains(selecteditem)) {
                     selectedcoinz.remove(selecteditem);
 
-                }else {
+                } else {
                     selectedcoinz.add(selecteditem);
                 }
             }
@@ -86,139 +89,147 @@ public class ViewWallet extends AppCompatActivity {
 
     }
 
-    public  void showselected(View view) {
-        if(selectedcoinz.size()>0) {
-            bankcoins();
+    //check if date has changed so we can update the date and the coins banked
+    @Override
+    protected void onStart() {
+        super.onStart();
+        datechecker();
 
-        }
+        //clear to avoid adding duplicates
+        coinz.clear();
+        coinsandid.clear();
+
+        //populate list view with coins in user's wallet
+        db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
+                for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
+                    String value = queryDocumentSnapshots.getDocuments().get(i).get("value").toString();
+                    String curr = queryDocumentSnapshots.getDocuments().get(i).get("currency").toString();
+                    String id = queryDocumentSnapshots.getDocuments().get(i).get("id").toString();
+                    coinz.add(value + " " + curr);
+
+                    //store with id so we know which coins to manipulate later on along with their values
+                    coinsandid.put(id, value + " " + curr);
+                }
+
+                //set up list view with this list and the templates we created separately
+                arrayAdapter = new ArrayAdapter(ViewWallet.this, R.layout.viewcoinzrow, R.id.template, coinz);
+                listView.setAdapter(arrayAdapter);
+                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            }
+        });
     }
 
-
-    public void bankcoins() {
+    //banking coins
+    public void bankcoins(View view) {
+        //check date to make sure we have updated version of total banked by user for the current day
         datechecker();
-        if(selectedcoinz.size()>0 && selectedcoinz.size()<=25) {
+        //they can only bank 25 so selected should be 25 or less
+        if (selectedcoinz.size() > 0 && selectedcoinz.size() <= 25) {
 
             db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(@android.support.annotation.Nullable DocumentSnapshot documentSnapshot) {
 
                     int currtotalbanked = Integer.parseInt(documentSnapshot.get("Today Banked").toString());
+                    //make sure that they havent banked 25 or that them banking the set amount doesnt
+                    //lead to a total current banked of more than 25
+                    if (currtotalbanked < 25 && currtotalbanked + selectedcoinz.size() <= 25) {
+                        //update current banked
+                        currtotalbanked = currtotalbanked + selectedcoinz.size();
+                        //calculate gold values of all the coins and add up
+                        for (int i = 0; i < selectedcoinz.size(); i++) {
+                            //calcgold = calcgold + currconverter(selectedcoinz.get(i));
+                            calcgold = calcgold + (new ConverterandDialogs()).currconverter(currentrates, selectedcoinz.get(i));
 
-                    if(currtotalbanked <25 && currtotalbanked+selectedcoinz.size()<=25) {
-                        currtotalbanked = currtotalbanked+selectedcoinz.size();
-
-                        for (int i = 0; i<selectedcoinz.size(); i++) {
-                            calcgold = calcgold + currconverter(selectedcoinz.get(i));
-
-                            for (int k=0; k<coinz.size();k++) {
-                                if(coinz.get(k).equals(selectedcoinz.get(i)))
+                            //remove coins added from view
+                            for (int k = 0; k < coinz.size(); k++) {
+                                if (coinz.get(k).equals(selectedcoinz.get(i)))
                                     coinz.remove(k);
                             }
                         }
 
-                        for(Map.Entry m : coinsandid.entrySet()){
+                        //remove coins from wallet as banked
+                        for (Map.Entry m : coinsandid.entrySet()) {
                             if (selectedcoinz.contains(m.getValue())) {
                                 String key = String.valueOf(m.getKey());
                                 db.collection("users").document(curruser).collection("wallet").document(key).delete();
                             }
                         }
 
+                        //added up previous gold to calculated gold and update today banked
                         calcgold = calcgold + Double.parseDouble(documentSnapshot.get("Gold").toString());
                         calctodaybanked = currtotalbanked;
 
-                        arrayAdapter = new ArrayAdapter(ViewWallet.this, R.layout.viewcoinzrow,R.id.template, coinz);
+                        //update list view
+                        arrayAdapter = new ArrayAdapter(ViewWallet.this, R.layout.viewcoinzrow, R.id.template, coinz);
                         listView.setAdapter(arrayAdapter);
 
+                    } else {
+                        new ConverterandDialogs().OKdialog("You can only bank 25 in a day!","Banking limit reached",ViewWallet.this).show();
                     }
-                    else{
-                        Toast.makeText(ViewWallet.this,"You can only bank 25 in a day!", Toast.LENGTH_SHORT).show();
-                    }
-                    db.collection("users").document(curruser).update("Today Banked", ""+calctodaybanked);
+                    //update database
+                    db.collection("users").document(curruser).update("Today Banked", "" + calctodaybanked);
                     db.collection("users").document(curruser).update("Gold", calcgold);
+
+                    //reset values incase user wants to bank more
                     calctodaybanked = 0;
                     calcgold = 0.0;
                 }
             });
-        }else{
-            if (selectedcoinz.size() ==0)
-                Toast.makeText(ViewWallet.this,"Please select coins!", Toast.LENGTH_SHORT).show();
-            if(selectedcoinz.size()>25)
-                Toast.makeText(ViewWallet.this,"You can not bank more than 25 coins in  a day!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public double currconverter(String coin) {
-        SharedPreferences settings = getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
-
-        currentrates = settings.getString("todayrate",currentrates);
-        float[] ratestoday = getrates(currentrates);
-
-        if (coin.contains("SHIL"))
-            return ratestoday[0]*Double.parseDouble(coin.substring(0,coin.length()-5));
-        else if (coin.contains("DOLR"))
-            return ratestoday[1]*Double.parseDouble(coin.substring(0,coin.length()-5));
-        else if (coin.contains("QUID"))
-            return ratestoday[2]*Double.parseDouble(coin.substring(0,coin.length()-5));
-        else
-            return ratestoday[3]*Double.parseDouble(coin.substring(0,coin.length()-5));
-
-    }
-
-    //gets rates out of string
-    public float[] getrates(String r){
-        //create an array that separates each currency into an element of a string array
-        String[] strrates = (r.substring(0,r.length()-2)).split(",");
-        float[] rates = new float[4];
-        String numstring;
-
-        //the array has the rates in the order they are present in the geojson file
-        // Shil, Dolr, Quid, Peny hence rates[0] is the rate of shil and etc..
-        for (int i =0; i<strrates.length; i++) {
-            numstring = strrates[i].substring(strrates[i].indexOf(":")+1);
-            rates[i] = Float.parseFloat(numstring);
-        }
-
-        return rates;
-    }
-
-    public  void gobacktobank(View view) {
-        Intent intent = new Intent(this, Bank.class);
-        startActivity(intent);
-    }
-
-    public void transfertosparechange(View view) {
-        db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(@android.support.annotation.Nullable DocumentSnapshot documentSnapshot) {
-
-                for (int i = 0; i<selectedcoinz.size(); i++) {
-                    for (int k=0; k<coinz.size();k++) {
-                        if(coinz.get(k).equals(selectedcoinz.get(i)))
-                            coinz.remove(k);
-                    }
-                }
-
-                for(Map.Entry m : coinsandid.entrySet()){
-                    if (selectedcoinz.contains(m.getValue())) {
-                        String key = String.valueOf(m.getKey());
-                        String value = String.valueOf(m.getValue());
-                        String currency = value.substring(value.length()-4,value.length());
-                        String valueofcoin = value.substring(0,value.indexOf(" "));
-                        Coin coin = new Coin(key,valueofcoin,currency);
-
-                        db.collection("users").document(curruser).collection("spare change").document(key).set(coin);
-                        db.collection("users").document(curruser).collection("wallet").document(key).delete();
-                    }
-                }
-
-                arrayAdapter = new ArrayAdapter(ViewWallet.this, R.layout.viewcoinzrow,R.id.template, coinz);
-                listView.setAdapter(arrayAdapter);
-
+        } else {
+            if (selectedcoinz.size() <1)
+                new ConverterandDialogs().OKdialog("Please select coins to bank!","No coins selected",ViewWallet.this).show();
+            if (selectedcoinz.size() > 25)
+                new ConverterandDialogs().OKdialog("You can not bank more than 25 coins in  a day!","Limit Exceeded",ViewWallet.this).show();
             }
-        });
-        Toast.makeText(this, "Coins Moved to Spare Change!", Toast.LENGTH_SHORT).show();
+        selectedcoinz.clear();
     }
 
+    //move coins to spare change
+    public void transfertosparechange(View view) {
+        if (selectedcoinz.size()>0) {
+            db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(@android.support.annotation.Nullable DocumentSnapshot documentSnapshot) {
+                    //delete from spare change view's array
+                    for (int i = 0; i < selectedcoinz.size(); i++) {
+                        for (int k = 0; k < coinz.size(); k++) {
+                            if (coinz.get(k).equals(selectedcoinz.get(i)))
+                                coinz.remove(k);
+                        }
+                    }
+                    //remove from the wallet and move to spare change
+                    for (Map.Entry m : coinsandid.entrySet()) {
+                        if (selectedcoinz.contains(m.getValue())) {
+                            String key = String.valueOf(m.getKey());
+
+                            //value from hashmap which we manipulate to get currency and value
+                            String value = String.valueOf(m.getValue());
+                            String currency = value.substring(value.length() - 4, value.length());
+                            String valueofcoin = value.substring(0, value.indexOf(" "));
+
+                            Coin coin = new Coin(key, valueofcoin, currency);
+
+                            db.collection("users").document(curruser).collection("spare change").document(key).set(coin);
+                            db.collection("users").document(curruser).collection("wallet").document(key).delete();
+                        }
+                    }
+                    //update view
+                    arrayAdapter = new ArrayAdapter(ViewWallet.this, R.layout.viewcoinzrow, R.id.template, coinz);
+                    listView.setAdapter(arrayAdapter);
+
+                    new ConverterandDialogs().OKdialog("Coins Moved to Spare Change!", "Success", ViewWallet.this).show();
+                }
+            });
+        }else {
+            new ConverterandDialogs().OKdialog("Please select coins to transfer!", "No Coins Selected", ViewWallet.this).show();
+        }
+        selectedcoinz.clear();
+    }
+
+    //check if date has changed
     public void datechecker() {
         db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -226,15 +237,40 @@ public class ViewWallet extends AppCompatActivity {
                 String datedb = documentSnapshot.get("Date").toString();
                 String converted = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
-                if (!converted.equals(datedb)){
+                //if date has changed then today banked is reset to 0 and date is updated
+                if (!converted.equals(datedb)) {
                     db.collection("users").document(curruser).update("Date", converted);
-                    db.collection("users").document(curruser).update("Today Banked","" + 0);
-                    //db.collection("users").document(curruser).update("Date", converted);
+                    db.collection("users").document(curruser).update("Today Banked", "" + 0);
                 }
-
             }
         });
+    }
 
+    //check size of wallet
+    public int checksizeofwallet() {
+        db.collection("users").document(curruser).collection("wallet").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(@Nullable QuerySnapshot queryDocumentSnapshots) {
+                walletsize = queryDocumentSnapshots.size();
+            }
+        });
+        return walletsize;
+    }
+
+    //go back to bank
+    public void gobacktobank(View view) {
+        Intent intent = new Intent(this, Bank.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -243,8 +279,18 @@ public class ViewWallet extends AppCompatActivity {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        datechecker();
+    public void onLowMemory() {
+        super.onLowMemory();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
 }

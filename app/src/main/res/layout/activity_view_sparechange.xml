@@ -16,12 +16,13 @@
         android:scrollbars="vertical" />
 
     <Button
-        android:id="@+id/showselected"
+        android:id="@+id/sendcoins"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/backtobank"
-        android:layout_centerHorizontal="true"
-        android:onClick="showselected"
+        android:layout_marginEnd="70dp"
+        android:onClick="sendcoins"
         android:text="Send Coins" />
 
 
@@ -32,17 +33,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="52dp"
-        android:layout_marginStart="17dp"
+        android:layout_marginStart="57dp"
         android:onClick="gobacktobank"
         android:text="back to bank" />
 
-    <Button
-        android:id="@+id/transfertowallet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/showselected"
-        android:onClick="transfertowallet"
-        android:layout_marginEnd="14dp"
-        android:text="Put in wallet" />
 </RelativeLayout>

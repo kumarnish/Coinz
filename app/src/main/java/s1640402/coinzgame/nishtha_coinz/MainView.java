@@ -1,6 +1,5 @@
 package s1640402.coinzgame.nishtha_coinz;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -10,39 +9,40 @@ import android.util.Log;
 import android.view.*;
 import android.content.Intent;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 
 public class MainView extends AppCompatActivity {
 
+    //download date variables
     private String downloadDate = ""; // Format: YYYY/MM/DD
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
     private String tag = "MainView";
-    private String strMapData = "";
-    private HashSet<String> fourdaysrates = new HashSet<String>();
+
+    private String strMapData = ""; //mapdata variable
+
+    private HashSet<String> fourdaysrates = new HashSet<String>(); //contains the rates of the previous 4 days
+    private String rates = ""; // contains current days rate
+
+    //firebase/firestore variables
     private FirebaseAuth mAuth;
-    private String rates = "";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String curruser;
+
+    //username display textbox
     private TextView usernamedisp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,36 +59,42 @@ public class MainView extends AppCompatActivity {
         usernamedisp = (TextView) findViewById(R.id.usernamedisp);
         usernamedisp.setText("Hi " + curruser);
 
-        // Restore preferences
+        //Restore preferences
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        //download date retrival
+        //get download date
         editor.putString("lastDownloadDate", downloadDate);
         // use ”” as the default value (this might be the first time the app is run)
         downloadDate = settings.getString("lastDownloadDate", "");
+        //format todays date to "yyyy/MM/dd" for usage in download link
         String todaydate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
-        //get today's exchange rates
+        //get today's exchange rates from prefs file
         settings.getString("todayrate", rates);
 
-        //checks if date has changed if it has the new map is downloaded to the prefs
+        //checks if date has changed if it has prefs data is updated
         if (!todaydate.equals(downloadDate)) {
 
+            //set download day as current day since new day
             downloadDate = todaydate;
+            //create download link and use to get map data
             String link = "http://www.homepages.inf.ed.ac.uk/stg/coinz/" + downloadDate + "/coinzmap.geojson";
             AsyncTask<String, Void, String> mapdata = new DownloadFileTask().execute(link);
 
-            //if a new day then the rates for the previuos days will also be needed
+            //if a new day then the rates for the previous days will also be needed
             getallratesfrom4days(getlast4daysdate());
+
+            //update 4 days rate
             editor.putStringSet("prevrates", fourdaysrates);
 
+            //in try and catch as there can be null pointer exception
             try {
+                //since successful, put new map data in prefs file
                 strMapData = mapdata.get();
                 editor.putString("mapdata", strMapData);
-
-                //get today's rate
                 try {
+                    //get todays rates from this mapdata file and update in prefs file
                     JSONObject rategetter = new JSONObject(strMapData);
                     rates = rategetter.getString("rates");
                 } catch (JSONException e) {
@@ -112,6 +118,7 @@ public class MainView extends AppCompatActivity {
                 }
             });
         }
+        //if date has not changed then just get all date from prefs file for use
         else {
             strMapData = settings.getString("mapdata", strMapData);
             rates = settings.getString("todayrate",rates);
@@ -127,22 +134,18 @@ public class MainView extends AppCompatActivity {
         }
     }
 
-
-
-    //--------------------------- IT WORKS LEAVE IT
     public void onStop(){
         super.onStop();
 
         Log.d(tag,"[onStop] Storing lastDownloadDate of " + downloadDate);
-        // All objects are from android.context.Context
-
-
+        //on Stop we will apply all the changes we made to the pref file for later use
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         // We need an Editor object to make preference changes.
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("lastDownloadDate", downloadDate);
         editor.putString("mapdata", strMapData);
         editor.putString("todayrate", rates);
+        editor.putStringSet("prevdatesrates",fourdaysrates);
         // Apply the edits!
         editor.apply();
     }
@@ -159,7 +162,6 @@ public class MainView extends AppCompatActivity {
     public void gotostockmarket(View view) {
         Intent intent = new Intent (this, StockMarket.class);
         //send rates to stock market view
-        Toast.makeText(this, rates, Toast.LENGTH_SHORT).show();
         intent.putExtra("exrates", rates);
         intent.putExtra("prevdaysrates",fourdaysrates.toArray(new String[fourdaysrates.size()]));
         startActivity(intent);
@@ -171,9 +173,9 @@ public class MainView extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //takes user to settings
-    public void gotosettings(View view) {
-        Intent intent = new Intent(this, Settings.class);
+    //takes user to friends view
+    public void gotofriendsandcoins(View view) {
+        Intent intent = new Intent(this, AddFriends.class);
         startActivity(intent);
     }
 
@@ -221,16 +223,12 @@ public class MainView extends AppCompatActivity {
 
     }
 
+    //log out of account and go back to login view to login again
     public void signout(View view){
         mAuth = FirebaseAuth.getInstance();
         mAuth.signOut();
         Intent intent = new Intent(this, Loginview.class);
         startActivity(intent);
     }
-
-    public void datechanged() {
-
-    }
-
 
 }

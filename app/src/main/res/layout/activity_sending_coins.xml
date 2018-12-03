@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".SendingCoins">
 
+    <ImageView
+        android:id="@+id/bgsendcoins"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/sendcoinsbg" />
+
     <ListView
         android:id="@+id/listviewfriends"
         android:layout_width="match_parent"
@@ -38,53 +47,65 @@
 
     <Button
         android:id="@+id/searchforfriend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="82dp"
+        android:layout_height="41dp"
+        android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/emailsearch"
-        android:layout_toEndOf="@+id/emailsearch"
-        android:onClick="searchfriends"
-        android:text="Search" />
+        android:layout_marginEnd="98dp"
+        android:background="@drawable/searchbutton"
+        android:onClick="searchfriends" />
 
     <TextView
         android:id="@+id/coinstitle"
-        android:layout_width="336dp"
+        android:layout_width="wrap_content"
         android:layout_height="37dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="296dp"
-        android:text="Select the coins you would like to send"
+        android:layout_marginBottom="297dp"
+        android:text="Select the Coins"
         android:textAlignment="center"
-        android:textSize="19sp" />
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/Confirmsend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="82dp"
+        android:layout_height="40dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="17dp"
-        android:layout_marginEnd="62dp"
-        android:onClick="sendcoins"
-        android:text="Send Away!" />
+        android:layout_alignStart="@+id/searchforfriend"
+        android:layout_marginBottom="26dp"
+        android:background="@drawable/sendcoinstofriend"
+        android:onClick="sendcoins" />
 
     <Button
         android:id="@+id/reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="82dp"
+        android:layout_height="41dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/emailsearch"
-        android:onClick="reset"
-        android:text="reset" />
+        android:background="@drawable/reset"
+        android:onClick="reset" />
 
     <Button
         android:id="@+id/backtobank"
-        android:layout_width="147dp"
-        android:layout_height="wrap_content"
+        android:layout_width="82dp"
+        android:layout_height="40dp"
         android:layout_alignParentStart="true"
         android:layout_alignTop="@+id/Confirmsend"
-        android:layout_marginStart="19dp"
-        android:text="Back to Bank"
+        android:layout_marginStart="93dp"
+        android:background="@drawable/backtobank"
         android:onClick="backtobank"/>
+
+    <TextView
+        android:id="@+id/friendstitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/listviewfriends"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-47dp"
+        android:text="Select a Friend"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
 
 </RelativeLayout>

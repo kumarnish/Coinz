@@ -7,4 +7,4 @@
     android:checked="false"
     android:gravity="center"
     android:padding="5dp"
-    android:textSize="18dp"/>
+    android:textSize="18dp" />

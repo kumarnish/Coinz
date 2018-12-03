@@ -2,6 +2,8 @@ package s1640402.coinzgame.nishtha_coinz;
 
 import java.util.ArrayList;
 
+//this class creates the arraylist that the map view uses to give each of the coins their
+//respective icons
 public class IconArraylist {
     private ArrayList<Integer> icons = new ArrayList<Integer>();
 
@@ -67,18 +69,18 @@ public class IconArraylist {
 
         int index = 0;
 
-        if (curr.equals("QUID"))
-        {
+        //we get the symbol from the map data file and parse it and use to it get the image
+        //corresponding to it for the respective currency
+        if (curr.equals("QUID")) {
             index = Integer.parseInt(sym);
             return icons.get(index);
         }
+        //we add 10,20,30 based on the number system mentioned above
         else if (curr.equals("DOLR")) {
-
             index = Integer.parseInt(sym) + 10;
             return icons.get(index);
         }
         else if (curr.equals("SHIL")) {
-
             index = Integer.parseInt(sym) + 20;
             return icons.get(index);
         }

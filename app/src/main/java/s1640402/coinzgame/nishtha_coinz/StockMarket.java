@@ -18,7 +18,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-
+/* =====================================STOCK MARKET VIEW=======================================
+In this activity the user can:
+-Can see the graph of the rates of each of the currencies for the past 4 days and today's
+* */
 public class StockMarket extends AppCompatActivity {
 
     private float[] todaysrate; //stores current day's exchange rate
@@ -52,10 +55,14 @@ public class StockMarket extends AppCompatActivity {
         //get the numbers of the rates out of the json file
         todaysrate = (new ConverterandDialogs()).getrates(todaysratestring);
 
+        //set up the rate arrays for each of the currencies
         setupratearrays();
+        //set the values and colors of the buttons based on if the currency went up or down
         setbuttonsup();
+        //set up the text near the buttons with todays rate and the title of each currency
         settitlesup();
 
+        //set up the bottom labels which are the date from the previous for days and today's date
         try {
             setdatesarray();
         } catch (Exception e) {
@@ -74,24 +81,23 @@ public class StockMarket extends AppCompatActivity {
                 new DataPoint(dates[4], penyrates[4]),
         });
 
-        series.setThickness(8);
-        series.setColor(Color.GRAY);
+        series.setThickness(10);
+        series.setColor(Color.BLACK);
 
         //format date for graph labels
         dateformatter();
         //configure graph's layout
         graph.getGridLabelRenderer().setHumanRounding(false);
         graph.addSeries(series);
-        graph.getGridLabelRenderer().setGridColor(Color.WHITE);
-        graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
-        graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
+        graph.getGridLabelRenderer().setVerticalLabelsColor(Color.BLACK);
+        graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.BLACK);
         graph.setTitle("PENY");
-        graph.setTitleColor(Color.WHITE);
+        graph.setTitleColor(Color.BLACK);
         graph.getViewport().setXAxisBoundsManual(true);
-
+        graph.setBackgroundColor(android.graphics.Color.rgb(240,252,255));
     }
 
-    //create arrays for each currency to plot
+    //create arrays for each currency's rates
     public void setupratearrays(){
         float[] dayrates;
         for (int i =0; i<prevdayrates.length; i++) {
@@ -170,15 +176,10 @@ public class StockMarket extends AppCompatActivity {
     }
 
     public void changegraphtoSHIL(View view){
-
         graphchanger(shilrates,"SHIL");
-
     }
 
-    public void changegraphtoQUID(View view){
-        graphchanger(quidrates,"QUID");
-
-    }
+    public void changegraphtoQUID(View view) { graphchanger(quidrates,"QUID"); }
 
     public void changegraphtoDOLR(View view){
         graphchanger(dolrrates,"DOLR");
@@ -199,10 +200,11 @@ public class StockMarket extends AppCompatActivity {
 
         dateformatter();
         graph.addSeries(series);
-        series.setThickness(8);
+        series.setThickness(10);
         series.setColor(Color.GRAY);
         graph.setTitle(curr);
-        graph.setTitleColor(Color.WHITE);
+        graph.setTitleColor(Color.BLACK);
+        graph.setBackgroundColor(android.graphics.Color.rgb(240,252,255));
     }
 
 

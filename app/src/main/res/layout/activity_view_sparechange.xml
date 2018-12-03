@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".ViewSpareChange">
 
+    <ImageView
+        android:id="@+id/backgroundsparechange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/sparechangebg" />
+
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
@@ -13,28 +22,41 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="83dp"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical" >
+
+    </ListView>
 
     <Button
         android:id="@+id/sendcoins"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="98dp"
+        android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/backtobank"
-        android:layout_marginEnd="70dp"
-        android:onClick="sendcoins"
-        android:text="Send Coins" />
+        android:layout_marginEnd="79dp"
+        android:background="@drawable/sendcoinsviewbutton"
+        android:onClick="sendcoins" />
 
 
     <Button
         android:id="@+id/backtobank"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="98dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="52dp"
-        android:layout_marginStart="57dp"
-        android:onClick="gobacktobank"
-        android:text="back to bank" />
+        android:layout_marginBottom="38dp"
+        android:layout_marginStart="84dp"
+        android:background="@drawable/backtobank"
+        android:onClick="gobacktobank" />
+
+    <TextView
+        android:id="@+id/titlesparechange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="31dp"
+        android:text="Spare Change"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>

@@ -6,17 +6,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ViewWallet">
+
+        <ImageView
+            android:id="@+id/backgroundwallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/viewwalletbg" />
+
         <Button
             android:id="@+id/backtobank"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="98dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="43dp"
-            android:layout_marginStart="21dp"
-            android:onClick="gobacktobank"
-            android:text="go back to bank" />
-
+            android:layout_marginBottom="45dp"
+            android:layout_marginStart="33dp"
+            android:background="@drawable/backtobank"
+            android:onClick="gobacktobank" />
 
 
         <ListView
@@ -30,23 +39,33 @@
 
     <Button
         android:id="@+id/bank"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:layout_width="98dp"
+        android:layout_height="50dp"
         android:layout_alignTop="@+id/backtobank"
-        android:layout_marginEnd="139dp"
-        android:onClick="bankcoins"
-        android:text="bank coins" />
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/bankcoins"
+        android:onClick="bankcoins" />
 
     <Button
         android:id="@+id/sparetransfer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="98dp"
+        android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/backtobank"
-        android:layout_marginEnd="15dp"
-        android:onClick="transfertosparechange"
-        android:text="Put in Spare" />
+        android:layout_marginEnd="35dp"
+        android:background="@drawable/movetospare"
+        android:onClick="transfertosparechange" />
+
+    <TextView
+        android:id="@+id/titlewallet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:text="Wallet"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>
 

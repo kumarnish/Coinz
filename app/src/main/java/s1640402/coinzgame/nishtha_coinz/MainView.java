@@ -24,7 +24,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 
+/* =====================================MAIN VIEW=======================================
+In this activity the user can:
+-Navigate to the Bank, Add friends view, Play game view, Stock market view and the help page
+-They can also sign out
 
+The view is also responsible for downloading the map data
+*/
 public class MainView extends AppCompatActivity {
 
     //download date variables
@@ -32,9 +38,11 @@ public class MainView extends AppCompatActivity {
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
     private String tag = "MainView";
 
-    private String strMapData = ""; //mapdata variable
+    //will contain the geojson string of the downloaded map
+    private String strMapData = "";
 
-    private HashSet<String> fourdaysrates = new HashSet<String>(); //contains the rates of the previous 4 days
+    //contains the rates of the previous 4 days
+    private HashSet<String> fourdaysrates = new HashSet<>();
     private String rates = ""; // contains current days rate
 
     //firebase/firestore variables
@@ -43,7 +51,7 @@ public class MainView extends AppCompatActivity {
     private String curruser;
 
     //username display textbox
-    private TextView usernamedisp;
+    private TextView username_disp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,42 +63,45 @@ public class MainView extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         curruser = mAuth.getCurrentUser().getEmail();
 
-        //set up username box on login
-        usernamedisp = (TextView) findViewById(R.id.usernamedisp);
-        usernamedisp.setText("Hi " + curruser);
+        //display up username box on login
+        username_disp = (TextView) findViewById(R.id.usernamedisp);
+        String text = "Hi, " + curruser;
+        username_disp.setText(text);
 
-        //Restore preferences
+        //Restore preferences and initialize the editor to update the pref file
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        //get download date
+        //get download date from the pref files
         editor.putString("lastDownloadDate", downloadDate);
         // use ”” as the default value (this might be the first time the app is run)
         downloadDate = settings.getString("lastDownloadDate", "");
-        //format todays date to "yyyy/MM/dd" for usage in download link
+
+        //format today's date to "yyyy/MM/dd" for usage in download link
         String todaydate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
         //get today's exchange rates from prefs file
         settings.getString("todayrate", rates);
 
+        //================================Download new map======================================
+
         //checks if date has changed if it has prefs data is updated
         if (!todaydate.equals(downloadDate)) {
-
             //set download day as current day since new day
             downloadDate = todaydate;
+
             //create download link and use to get map data
             String link = "http://www.homepages.inf.ed.ac.uk/stg/coinz/" + downloadDate + "/coinzmap.geojson";
             AsyncTask<String, Void, String> mapdata = new DownloadFileTask().execute(link);
 
-            //if a new day then the rates for the previous days will also be needed
+            //the rates for the previous days will also be needed
             getallratesfrom4days(getlast4daysdate());
 
-            //update 4 days rate
+            //update the prefs file with them
             editor.putStringSet("prevrates", fourdaysrates);
 
-            //in try and catch as there can be null pointer exception
             try {
-                //since successful, put new map data in prefs file
+                //put new map data in prefs file
                 strMapData = mapdata.get();
                 editor.putString("mapdata", strMapData);
                 try {
@@ -107,18 +118,23 @@ public class MainView extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            //delete removed list if date changed
-            db.collection("users").document(curruser).collection("removedcoins").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            //empty the removed coins from yesterday as they will not present in the new map
+            db.collection("users").document(curruser)
+              .collection("removedcoins").get().addOnSuccessListener(
+              new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    //loop through the list of coins in removed coins and delete them
                     for (int i =0; i<queryDocumentSnapshots.size();i++) {
                         String key = queryDocumentSnapshots.getDocuments().get(i).get("id").toString();
-                        db.collection("users").document(curruser).collection("removedcoins").document(key).delete();
+                        db.collection("users").document(curruser)
+                          .collection("removedcoins").document(key).delete();
                     }
                 }
             });
         }
-        //if date has not changed then just get all date from prefs file for use
+        //================================END Download new map======================================
+        //if date has not changed then just get all data from prefs file
         else {
             strMapData = settings.getString("mapdata", strMapData);
             rates = settings.getString("todayrate",rates);
@@ -138,10 +154,12 @@ public class MainView extends AppCompatActivity {
         super.onStop();
 
         Log.d(tag,"[onStop] Storing lastDownloadDate of " + downloadDate);
-        //on Stop we will apply all the changes we made to the pref file for later use
+
+        //we will apply all the changes we made to the pref file for later use
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         // We need an Editor object to make preference changes.
         SharedPreferences.Editor editor = settings.edit();
+
         editor.putString("lastDownloadDate", downloadDate);
         editor.putString("mapdata", strMapData);
         editor.putString("todayrate", rates);
@@ -167,7 +185,7 @@ public class MainView extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //takes user to bank
+    //takes user to bank view
     public void gotobank(View view){
         Intent intent = new Intent(this, Bank.class);
         startActivity(intent);
@@ -186,23 +204,23 @@ public class MainView extends AppCompatActivity {
         //since we are only provided with maps for 2018-2019 it makes sure to check if
         // it is a valid date so after the 1st of january 2018
         if(!LocalDate.now().equals("2018/01/01")) {
-
-            for (int i = 1; i<5 ; i++)
-            {
-               String date = LocalDate.now().minusDays(i).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-                prevdateslinks[i-1] = "http://www.homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson";
+            for (int i = 1; i<5 ; i++) {
+                //day i days before the current date
+                String date = LocalDate.now().minusDays(i).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+                //concatenate the date with other parts of the links to get the download link
+                prevdateslinks[i-1] = "http://www.homepages.inf.ed.ac.uk/stg/coinz/"
+                                                  + date + "/coinzmap.geojson";
             }
         }
-
         return prevdateslinks;
     }
 
-    //returns all the relevant dates'rates as hashset so that they can be stored in the prefs file
+    //returns all the relevant dates'rates as hash set so that they can be stored in the prefs file
     public void getallratesfrom4days(String [] links){
         String[] arrrates = new String[4];
         for(int i =0; i<arrrates.length;i++) {
 
-            //extra rates only from json string
+            //extra rates only from their respective json string
             try{
                 JSONObject jsonResponse = null;
                 try {
@@ -220,10 +238,9 @@ public class MainView extends AppCompatActivity {
         }
 
         fourdaysrates =  new HashSet<String>(Arrays.asList(arrrates));
-
     }
 
-    //log out of account and go back to login view to login again
+    //log out of account and go back to login view
     public void signout(View view){
         mAuth = FirebaseAuth.getInstance();
         mAuth.signOut();

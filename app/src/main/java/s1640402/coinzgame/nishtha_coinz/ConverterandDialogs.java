@@ -1,13 +1,15 @@
 package s1640402.coinzgame.nishtha_coinz;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
 //class to store the methods used to convert rate strings to arrays and convert coins to gold
-//and create the standard dialog box  many classes use the same methods
+//and create the standard dialog box
+//This class was created as many classes use the same methods and this would reduce the lines of code
 public class ConverterandDialogs {
+
+    public ConverterandDialogs() {}
 
     public float[] getrates(String r){
         //create an array that separates each currency into an element of a string array
@@ -29,9 +31,12 @@ public class ConverterandDialogs {
         //convert rates to an array
         float[] ratestoday = getrates(rate);
 
-        //multiple coins by their respective currencies gold value on the current day
+        //multiply coins by their respective currencies' gold value on the current day
+
+        //the substring function retrieves it from the string in listview, as
+        // "6.005392773625784 SHIL" and gets 6.005392773625784 out of the string
+        //for calculations
         if (coin.contains("SHIL"))
-            //the substring function retrieves it from the string in listview, ex: "6.005392773625784 DOLR"
             return ratestoday[0]*Double.parseDouble(coin.substring(0,coin.length()-5));
         else if (coin.contains("DOLR"))
             return ratestoday[1]*Double.parseDouble(coin.substring(0,coin.length()-5));

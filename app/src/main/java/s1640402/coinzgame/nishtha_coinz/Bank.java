@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,49 +19,50 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+/* =====================================BANK VIEW=======================================
+In this activity the user can:
+-View their current gold balance
+-Access their wallet, spare change and the send coins window
+-Use the Exchange coins feature to get the gold highest gold value in exchange for their spare change
+* */
 public class Bank extends AppCompatActivity {
 
+    //Firebase variables
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseAuth mAuth;
     private String curruser;
 
-    private TextView goldview; // current gold amount in account display
+    // current gold amount in account display
+    private TextView goldview;
 
-    private String currentrates; //todays exchange rates
+    //coin as the key for its respective gold value
+    private HashMap<String, Double> coinsandgoldval = new HashMap<>();
 
-    private HashMap<String, Double> coinsandgoldval = new HashMap<String,Double>(); //coin as the key for its respective gold value
+    //today's exchange rates
+    private String currentrates;
 
-    private String keyofmaxexchange; //key from coinandgoldval with the highest gold value
+    //key from coinandgoldval with the highest gold value
+    private String keyofmaxexchange;
 
-    private int sizeofsparechange; //has the size of spare change
+    //has the size of spare change
+    private int sizeofsparechange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bank);
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         curruser = mAuth.getCurrentUser().getEmail();
-        goldview = (TextView) findViewById(R.id.goldamt);
+        goldview = findViewById(R.id.goldamt);
 
-        SharedPreferences settings = getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
-        currentrates = settings.getString("todayrate", currentrates);
-
-        //retrieve gold in users account from database and display in goldview textbox
-        db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-               String gold = documentSnapshot.get("Gold").toString();
-               goldview.setText(gold);
-            }
-        });
-
-        //check if there are coins in spare to send
-        db.collection("users").document(curruser).collection("spare change").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot querySnapshot) {
-                sizeofsparechange = querySnapshot.size();
-            }
+        //store size of spare change for later use
+        db.collection("users").document(curruser)
+          .collection("spare change").get()
+          .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    sizeofsparechange = querySnapshot.size();
+                }
         });
     }
 
@@ -68,12 +70,14 @@ public class Bank extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         //retrieve gold in users account from database and display in goldview textbox
-        db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String gold = documentSnapshot.get("Gold").toString();
-                goldview.setText(gold);
-            }
+        db.collection("users").document(curruser).get()
+          .addOnSuccessListener(
+          new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    String gold = documentSnapshot.get("Gold").toString();
+                    goldview.setText(gold);
+                }
         });
     }
 
@@ -95,8 +99,9 @@ public class Bank extends AppCompatActivity {
             Intent intent = new Intent(this, SendingCoins.class);
             startActivity(intent);
         }else {
-            new ConverterandDialogs().OKdialog("No coins to send, fill up your spare change before trying to send coins.",
-                    "No spare change", Bank.this).show();
+            new ConverterandDialogs().OKdialog("No coins to send, fill up your spare change"
+                            + " before trying to send coins.", "No spare change",
+                            Bank.this).show();
         }
     }
 
@@ -106,61 +111,83 @@ public class Bank extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //exchange returns the gold value of the highest coin
+    //===============================Exchange bonus feature=======================================
+    //exchange returns the gold value of the highest coin in spare change and removes all spare
+    //change in return for the gold
     public void exchange(View view) {
-        db.collection("users").document(curruser).collection("spare change").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                //make sure there are coins in spare change
-                if (queryDocumentSnapshots.size()>0) {
-                    //get their currency and value to get the gold and for the keys for the hashmap
-                    for(int i = 0; i<queryDocumentSnapshots.size();i++) {
-                        String value = queryDocumentSnapshots.getDocuments().get(i).get("value").toString();
-                        String curr = queryDocumentSnapshots.getDocuments().get(i).get("currency").toString();
+        //get todays rates from the prefs file
+        SharedPreferences settings = getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
+        currentrates  = settings.getString("todayrate", currentrates);
 
-                        String valueofcoin = value + " " + curr;
-                        double gold = (new ConverterandDialogs().currconverter(currentrates,valueofcoin));
-                        coinsandgoldval.put(value + " " + curr,gold);
-                    }
-                    //find the max gold value and its key
-                    Double maxval = 0.0;
-                    String maxkey ="";
-                    for(Map.Entry m : coinsandgoldval.entrySet()){
-                        if (Double.parseDouble(m.getValue().toString()) > maxval) {
-                            maxkey = String.valueOf(m.getKey());
-                            maxval = Double.parseDouble(m.getValue().toString());
-                        }
-                    }
-                    keyofmaxexchange =maxkey;
+        db.collection("users").document(curruser).collection("spare change")
+          .get().addOnSuccessListener(
+          new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    //make sure there are coins in spare change
+                    if (queryDocumentSnapshots.size()>0) {
+                        //get their currency and value to get the gold and the keys for the hash map
+                        for(int i = 0; i<queryDocumentSnapshots.size();i++) {
+                            String value = queryDocumentSnapshots.getDocuments().get(i).get("value").toString();
+                            String curr = queryDocumentSnapshots.getDocuments().get(i).get("currency").toString();
 
-                    //reset gold view to new value
-                    db.collection("users").document(curruser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(@Nullable DocumentSnapshot documentSnapshot) {
-                            Double gold = coinsandgoldval.get(keyofmaxexchange) + Double.parseDouble(documentSnapshot.get("Gold").toString());
-                            db.collection("users").document(curruser).update("Gold", gold);
-                            goldview.setText("" + gold);
+                            String valueofcoin = value + " " + curr;
+                            //convert each coin into gold
+                            double gold = (new ConverterandDialogs().currconverter(currentrates,valueofcoin));
+                            //store the coin currency and value as the key for it's gold value
+                            coinsandgoldval.put(value + " " + curr,gold);
                         }
-                    });
+
+                        //find the max gold value and its key
+                        Double maxval = 0.0;
+                        String maxkey ="";
+                        for(Map.Entry m : coinsandgoldval.entrySet()){
+                            if (Double.parseDouble(m.getValue().toString()) > maxval) {
+                                maxkey = String.valueOf(m.getKey());
+                                maxval = Double.parseDouble(m.getValue().toString());
+                            }
+                        }
+                        keyofmaxexchange =maxkey;
+
+                        db.collection("users").document(curruser).get()
+                          .addOnSuccessListener(
+                           new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(@Nullable DocumentSnapshot documentSnapshot) {
+                                    //add the users current gold with the gold gotten above to update their
+                                    //current gold to this new value
+                                    Double gold = coinsandgoldval.get(keyofmaxexchange)
+                                            + Double.parseDouble(documentSnapshot.get("Gold").toString());
+
+                                    db.collection("users").document(curruser).update("Gold", gold);
+
+                                    String text = gold + "";
+                                    goldview.setText(text);
+                                }
+                        });
 
                     //clear spare change
-                    db.collection("users").document(curruser).collection("spare change").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            for (int i =0; i<queryDocumentSnapshots.size();i++) {
-                                String key = queryDocumentSnapshots.getDocuments().get(i).get("id").toString();
-                                db.collection("users").document(curruser).collection("spare change").document(key).delete();
+                    db.collection("users").document(curruser).collection("spare change")
+                      .get().addOnSuccessListener(
+                      new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                for (int i =0; i<queryDocumentSnapshots.size();i++) {
+                                    String key = queryDocumentSnapshots.getDocuments()
+                                                                       .get(i).get("id").toString();
+
+                                db.collection("users").document(curruser)
+                                  .collection("spare change").document(key).delete();
                             }
                         }
                     });
-
-                    //alert the user that the transaction was successful
-                    new ConverterandDialogs().OKdialog("Yayy, you've put all those unbankable coins to good use!",
-                            "Success", Bank.this).show();
+                        Toast.makeText(Bank.this, "Successful, your gold has updated!",
+                                        Toast.LENGTH_SHORT).show();
                 }else {
                     //alert the user that their spare change is empty
-                    new ConverterandDialogs().OKdialog("Your spare change is empty, please fill it before exchanging",
-                                                        "Empty Spare Change", Bank.this).show();
+                    new ConverterandDialogs().OKdialog("Your spare change is empty, " +
+                                    "please fill it before exchanging", "Empty Spare Change",
+                                     Bank.this).show();
                 }
             }
         });

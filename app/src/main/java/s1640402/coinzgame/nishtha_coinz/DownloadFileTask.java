@@ -42,11 +42,13 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
         StringBuilder sb = new StringBuilder();
         String line = null;
 
+        //after reading a line add a line break at the end of the line
         while ((line = reader.readLine()) != null) {
            sb.append(line).append("\n");
         }
 
         reader.close();
+        //return the GEOJSON as a String
         return sb.toString();
 
     }

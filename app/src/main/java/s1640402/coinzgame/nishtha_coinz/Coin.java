@@ -1,6 +1,6 @@
 package s1640402.coinzgame.nishtha_coinz;
 
-//class for the storing of coins on the database
+//class used to create the coin object to store in the firebase database
 public class Coin {
 
     private String id;

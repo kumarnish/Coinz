@@ -6,12 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".AddFriends">
 
+    <ImageView
+        android:id="@+id/backgroundaddfriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/friendsbg" />
+
     <ImageButton
         android:id="@+id/gotomain"
         android:layout_width="72dp"
         android:layout_height="37dp"
+        android:layout_alignBottom="@+id/addfriendstitle"
         android:layout_alignStart="@+id/emailsearch"
-        android:layout_alignTop="@+id/addfriendstitle"
         android:background="#0000"
         android:onClick="gobacktomain"
         android:scaleType="fitXY"
@@ -34,28 +43,30 @@
 
     <Button
         android:id="@+id/addfriends"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="106dp"
+        android:layout_height="53dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="48dp"
-        android:layout_marginStart="81dp"
-        android:onClick="addfriends"
-        android:text="Add Friends" />
+        android:layout_marginBottom="50dp"
+        android:layout_marginStart="75dp"
+        android:background="@drawable/addfriendsbutton"
+        android:onClick="addfriends" />
 
     <TextView
         android:id="@+id/addfriendstitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="60dp"
         android:layout_marginTop="16dp"
         android:text="Add More Friends"
-        android:textSize="24sp" />
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/emailsearch"
-        android:layout_width="195dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -67,31 +78,31 @@
 
     <Button
         android:id="@+id/searchusers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/addfriendstitle"
-        android:layout_alignTop="@+id/emailsearch"
-        android:onClick="searchfriends"
-        android:text="search" />
+        android:layout_width="72dp"
+        android:layout_height="37dp"
+        android:layout_alignBottom="@+id/emailsearch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="96dp"
+        android:background="@drawable/searchbutton"
+        android:onClick="searchfriends" />
 
     <Button
         android:id="@+id/reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="72dp"
+        android:layout_height="37dp"
+        android:layout_alignBottom="@+id/emailsearch"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/emailsearch"
-        android:layout_marginEnd="14dp"
-        android:onClick="reset"
-        android:text="reset" />
+        android:layout_marginEnd="13dp"
+        android:background="@drawable/reset"
+        android:onClick="reset" />
 
     <Button
         android:id="@+id/viewfriends"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:layout_width="106dp"
+        android:layout_height="53dp"
         android:layout_alignTop="@+id/addfriends"
-        android:layout_marginEnd="57dp"
-        android:text="View Friends"
-        android:onClick="viewfriends"/>
+        android:layout_toStartOf="@+id/reset"
+        android:background="@drawable/viewfriends"
+        android:onClick="viewfriends" />
 
 </RelativeLayout>

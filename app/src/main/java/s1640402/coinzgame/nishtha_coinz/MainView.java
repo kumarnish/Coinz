@@ -197,6 +197,12 @@ public class MainView extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //takes user to help view
+    public void help(View view){
+        Intent intent = new Intent(this, Help.class);
+        startActivity(intent);
+    }
+
     //finds the dates of the last 4 days and returns the links for their maps
     public String[] getlast4daysdate() {
         String[] prevdateslinks = new String[4];

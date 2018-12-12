@@ -132,6 +132,7 @@ public class PlayGame extends AppCompatActivity implements OnMapReadyCallback, L
             //====================================SETUP MARKERS=================================
             //setup markers using loop and relation information from slides
             for (Feature f : features) {
+                //if the geometry obtained is a point
                 if (f.geometry() instanceof Point) {
                     //check if current marker hasn't already been collected by the user by comparing
                     // to the removedcoins list on the database

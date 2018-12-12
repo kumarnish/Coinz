@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.*;
 import android.content.Intent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,8 +21,10 @@ import org.json.JSONObject;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /* =====================================MAIN VIEW=======================================
@@ -42,8 +45,8 @@ public class MainView extends AppCompatActivity {
     private String strMapData = "";
 
     //contains the rates of the previous 4 days
-    private HashSet<String> fourdaysrates = new HashSet<>();
     private String rates = ""; // contains current days rate
+    private Set<String> prev4dayrates = new HashSet<String>();
 
     //firebase/firestore variables
     private FirebaseAuth mAuth;
@@ -98,7 +101,7 @@ public class MainView extends AppCompatActivity {
             getallratesfrom4days(getlast4daysdate());
 
             //update the prefs file with them
-            editor.putStringSet("prevrates", fourdaysrates);
+            editor.putStringSet("prevrates", prev4dayrates);
 
             try {
                 //put new map data in prefs file
@@ -139,14 +142,7 @@ public class MainView extends AppCompatActivity {
             strMapData = settings.getString("mapdata", strMapData);
             rates = settings.getString("todayrate",rates);
 
-            //checks if fourdaysrates set is empty so that it can add maps
-            if (fourdaysrates.size() == 0) {
-                getallratesfrom4days(getlast4daysdate());
-                editor.putStringSet("prevrates", fourdaysrates);
-            }
-            else {
-                settings.getStringSet("prevdatesrates", fourdaysrates);
-            }
+            prev4dayrates = settings.getStringSet("prevdatesrates", new HashSet<>());
         }
     }
 
@@ -163,7 +159,7 @@ public class MainView extends AppCompatActivity {
         editor.putString("lastDownloadDate", downloadDate);
         editor.putString("mapdata", strMapData);
         editor.putString("todayrate", rates);
-        editor.putStringSet("prevdatesrates",fourdaysrates);
+        editor.putStringSet("prevdatesrates",prev4dayrates);
         // Apply the edits!
         editor.apply();
     }
@@ -181,7 +177,7 @@ public class MainView extends AppCompatActivity {
         Intent intent = new Intent (this, StockMarket.class);
         //send rates to stock market view
         intent.putExtra("exrates", rates);
-        intent.putExtra("prevdaysrates",fourdaysrates.toArray(new String[fourdaysrates.size()]));
+        intent.putExtra("prevdaysrates",prev4dayrates.toArray(new String[prev4dayrates.size()]));
         startActivity(intent);
     }
 
@@ -243,7 +239,7 @@ public class MainView extends AppCompatActivity {
             }
         }
 
-        fourdaysrates =  new HashSet<String>(Arrays.asList(arrrates));
+        prev4dayrates =  new HashSet<String>(Arrays.asList(arrrates));
     }
 
     //log out of account and go back to login view

@@ -1,12 +1,15 @@
 package s1640402.coinzgame.nishtha_coinz;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
@@ -14,9 +17,12 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Set;
 
 /* =====================================STOCK MARKET VIEW=======================================
 In this activity the user can:
@@ -25,7 +31,7 @@ In this activity the user can:
 public class StockMarket extends AppCompatActivity {
 
     private float[] todaysrate; //stores current day's exchange rate
-    private String[] prevdayrates; //stores exchange rates of previous 4 days
+    private String[] prevdayrates = new String[4]; //stores exchange rates of previous 4 days
 
     //stores respective currency's 5 day rates
     private float[] shilrates = new float[5];
@@ -201,7 +207,7 @@ public class StockMarket extends AppCompatActivity {
         dateformatter();
         graph.addSeries(series);
         series.setThickness(10);
-        series.setColor(Color.GRAY);
+        series.setColor(Color.BLACK);
         graph.setTitle(curr);
         graph.setTitleColor(Color.BLACK);
         graph.setBackgroundColor(android.graphics.Color.rgb(240,252,255));

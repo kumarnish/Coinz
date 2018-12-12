@@ -132,7 +132,6 @@ public class ViewFriends extends AppCompatActivity {
                 }
             }
         });
-        //===================================END Remove Friends=====================================
 
         //cancel sending
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -145,6 +144,7 @@ public class ViewFriends extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+    //===================================END Remove Friends=====================================
 
     //check if the list of friends selected isnt empty to avoid errors
     public void removefriendsvalidate(View view) {
